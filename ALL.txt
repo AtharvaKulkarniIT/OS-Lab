@@ -1482,3 +1482,215 @@ void main()
         sem_destroy(&semaphores[i]);
 }
 
+import java.util.Scanner;
+
+class Process {
+    int pid; // Process ID
+    int burstTime;
+    int arrivalTime;
+    int priority; // For priority scheduling
+    int remainingTime; // For preemptive scheduling
+    int finishTime;
+    int turnaroundTime;
+    int waitingTime;
+}
+
+public class SchedulingAlgorithms {
+
+    static void calculateTimes(Process[] processes, int n) {
+        for (int i = 0; i < n; i++) {
+            processes[i].turnaroundTime = processes[i].finishTime - processes[i].arrivalTime;
+            processes[i].waitingTime = processes[i].turnaroundTime - processes[i].burstTime;
+        }
+    }
+
+    static void fcfs(Process[] processes, int n) {
+        System.out.println("\nFirst Come First Serve (FCFS):");
+        System.out.print("Scheduling Sequence: ");
+        processes[0].finishTime = processes[0].arrivalTime + processes[0].burstTime;
+        System.out.print("P" + processes[0].pid);
+
+        for (int i = 1; i < n; i++) {
+            if (processes[i].arrivalTime > processes[i - 1].finishTime) {
+                processes[i].finishTime = processes[i].arrivalTime + processes[i].burstTime;
+            } else {
+                processes[i].finishTime = processes[i - 1].finishTime + processes[i].burstTime;
+            }
+            System.out.print(" -> P" + processes[i].pid);
+        }
+        System.out.println();
+        calculateTimes(processes, n);
+    }
+
+    static void sjfNonPreemptive(Process[] processes, int n) {
+        System.out.println("\nShortest Job First (Non-Preemptive):");
+        System.out.print("Scheduling Sequence: ");
+        int completed = 0, time = 0, minIndex;
+        boolean[] finished = new boolean[n];
+
+        while (completed != n) {
+            minIndex = -1;
+            for (int i = 0; i < n; i++) {
+                if (!finished[i] && processes[i].arrivalTime <= time) {
+                    if (minIndex == -1 || processes[i].burstTime < processes[minIndex].burstTime) {
+                        minIndex = i;
+                    }
+                }
+            }
+            if (minIndex != -1) {
+                time += processes[minIndex].burstTime;
+                processes[minIndex].finishTime = time;
+                finished[minIndex] = true;
+                System.out.print("P" + processes[minIndex].pid);
+                if (completed != n - 1)
+                    System.out.print(" -> ");
+                completed++;
+            } else {
+                time++;
+            }
+        }
+        System.out.println();
+        calculateTimes(processes, n);
+    }
+
+    static void sjfPreemptive(Process[] processes, int n) {
+        System.out.println("\nShortest Job First (Preemptive):");
+        System.out.print("Scheduling Sequence: ");
+        int completed = 0, time = 0, minIndex;
+        boolean[] finished = new boolean[n];
+
+        for (int i = 0; i < n; i++) {
+            processes[i].remainingTime = processes[i].burstTime;
+            finished[i] = false;
+        }
+
+        while (completed != n) {
+            minIndex = -1;
+            for (int i = 0; i < n; i++) {
+                if (!finished[i] && processes[i].arrivalTime <= time && processes[i].remainingTime > 0) {
+                    if (minIndex == -1 || processes[i].remainingTime < processes[minIndex].remainingTime) {
+                        minIndex = i;
+                    }
+                }
+            }
+            if (minIndex != -1) {
+                System.out.print("P" + processes[minIndex].pid + " ");
+                processes[minIndex].remainingTime--;
+                time++;
+                if (processes[minIndex].remainingTime == 0) {
+                    processes[minIndex].finishTime = time;
+                    finished[minIndex] = true;
+                    completed++;
+                }
+            } else {
+                time++;
+            }
+        }
+        System.out.println();
+        calculateTimes(processes, n);
+    }
+
+    static void priorityNonPreemptive(Process[] processes, int n) {
+        System.out.println("\nPriority Scheduling (Non-Preemptive):");
+        System.out.print("Scheduling Sequence: ");
+        int completed = 0, time = 0, minIndex;
+        boolean[] finished = new boolean[n];
+
+        while (completed != n) {
+            minIndex = -1;
+            for (int i = 0; i < n; i++) {
+                if (!finished[i] && processes[i].arrivalTime <= time) {
+                    if (minIndex == -1 || processes[i].priority < processes[minIndex].priority) {
+                        minIndex = i;
+                    }
+                }
+            }
+            if (minIndex != -1) {
+                time += processes[minIndex].burstTime;
+                processes[minIndex].finishTime = time;
+                finished[minIndex] = true;
+                System.out.print("P" + processes[minIndex].pid);
+                if (completed != n - 1)
+                    System.out.print(" -> ");
+                completed++;
+            } else {
+                time++;
+            }
+        }
+        System.out.println();
+        calculateTimes(processes, n);
+    }
+
+    static void roundRobin(Process[] processes, int n, int quantum) {
+        System.out.println("\nRound Robin:");
+        System.out.print("Scheduling Sequence: ");
+        int time = 0, completed = 0;
+        int[] remainingTime = new int[n];
+
+        for (int i = 0; i < n; i++)
+            remainingTime[i] = processes[i].burstTime;
+
+        while (completed != n) {
+            for (int i = 0; i < n; i++) {
+                if (remainingTime[i] > 0 && processes[i].arrivalTime <= time) {
+                    System.out.print("P" + processes[i].pid);
+                    if (remainingTime[i] > quantum) {
+                        time += quantum;
+                        remainingTime[i] -= quantum;
+                    } else {
+                        time += remainingTime[i];
+                        remainingTime[i] = 0;
+                        processes[i].finishTime = time;
+                        completed++;
+                    }
+                    if (completed != n)
+                        System.out.print(" -> ");
+                }
+            }
+        }
+        System.out.println();
+        calculateTimes(processes, n);
+    }
+
+    static void printTimes(Process[] processes, int n) {
+        System.out.println("PID\tArrival\tBurst\tFinish\tTurnaround\tWaiting");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("%d\t%d\t%d\t%d\t%d\t\t%d\n", processes[i].pid, processes[i].arrivalTime,
+                    processes[i].burstTime, processes[i].finishTime, processes[i].turnaroundTime, processes[i].waitingTime);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        Process[] processes = new Process[n];
+
+        for (int i = 0; i < n; i++) {
+            processes[i] = new Process();
+            System.out.println("Enter details for Process " + (i + 1));
+            processes[i].pid = i + 1;
+            System.out.print("Arrival Time: ");
+            processes[i].arrivalTime = sc.nextInt();
+            System.out.print("Burst Time: ");
+            processes[i].burstTime = sc.nextInt();
+            System.out.print("Priority: ");
+            processes[i].priority = sc.nextInt();
+        }
+
+        fcfs(processes, n);
+        printTimes(processes, n);
+        sjfNonPreemptive(processes, n);
+        printTimes(processes, n);
+        sjfPreemptive(processes, n);
+        printTimes(processes, n);
+        priorityNonPreemptive(processes, n);
+        printTimes(processes, n);
+        System.out.print("Enter quantum for Round Robin: ");
+        int quantum = sc.nextInt();
+        roundRobin(processes, n, quantum);
+        printTimes(processes, n);
+        sc.close();
+    }
+}
