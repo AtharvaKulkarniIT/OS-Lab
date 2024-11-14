@@ -1,0 +1,1484 @@
+# 1) Print Sum of Digits of a given number using command line argument
+#!/bin/bash
+if [ $# -eq 0 ]; then
+  echo "Arguments not found"
+  exit 1
+fi
+num=$1
+sum=0
+while [ $num -gt 0 ]
+do
+  digit=`expr $num % 10`
+  sum=`expr $sum + $digit`
+  num=`expr $num / 10`
+done
+echo "Sum of digits: $sum"
+
+# 2) Write a shell script using function for average, max digit, and min digit
+#!/bin/bash
+average() {
+  sum=0
+  count=$#
+  for num in "$@"
+  do
+    sum=`expr $sum + $num`
+  done
+  avg=`expr $sum / $count`
+  echo "Average: $avg"
+}
+
+max_digit() {
+  number=$1
+  max=0
+  while [ $number -gt 0 ]
+  do
+    digit=`expr $number % 10`
+    if [ $digit -gt $max ]; then
+      max=$digit
+    fi
+    number=`expr $number / 10`
+  done
+  echo "Max digit: $max"
+}
+
+min_digit() {
+  number=$1
+  min=9
+  while [ $number -gt 0 ]
+  do
+    digit=`expr $number % 10`
+    if [ $digit -lt $min ]; then
+      min=$digit
+    fi
+    number=`expr $number / 10`
+  done
+  echo "Min digit: $min"
+}
+
+use() {
+  echo "Use:"
+  echo "$0 average <num1> <num2> ..."
+  echo "$0 max_digit <number>"
+  echo "$0 min_digit <number>"
+}
+
+if [ $# -lt 2 ]; then
+  use
+  exit 1
+fi
+
+operation=$1
+shift
+case $operation in
+  average)
+    if [ $# -lt 1 ]; then
+      echo "Error: You must provide at least one number to calculate the average"
+      exit 1
+    fi
+    average "$@"
+    ;;
+  max_digit)
+    if [ $# -ne 1 ]; then
+      echo "Error: Only one number is needed to calculate the maximum digit."
+      exit 1
+    fi
+    max_digit "$1"
+    ;;
+  min_digit)
+    if [ $# -ne 1 ]; then
+      echo "Error: Only one number is needed to calculate the minimum digit"
+      exit 1
+    fi
+    min_digit "$1"
+    ;;
+  *)
+    echo "Error: The operation '$operation' is not recognized"
+    use
+    exit 1
+    ;;
+esac
+
+# 3) Perform sorting on given array elements
+#!/bin/bash
+bubble_sort() {
+  array=("$@")
+  n=${#array[@]}
+  for ((i = 0; i < n; i++))
+  do
+    for ((j = 0; j < n - i - 1; j++))
+    do
+      if [ "${array[j]}" -gt "${array[j+1]}" ]; then
+        temp=${array[j]}
+        array[j]=${array[j+1]}
+        array[j+1]=$temp
+      fi
+    done
+  done
+  echo "${array[@]}"
+}
+
+if [ $# -eq 0 ]; then
+  echo "Arguments not found"
+  exit 1
+fi
+sorted_array=($(bubble_sort "$@"))
+echo "Sorted array: ${sorted_array[@]}"
+
+# 4) Program to find factorial of a given number with and without recursion
+#!/bin/bash
+
+factorial_with_recursion() {
+  if [ $1 -le 1 ]; then
+    echo 1
+  else
+    prev=$(factorial_with_recursion $(( $1 - 1 )))
+    echo $(( $1 * prev ))
+  fi
+}
+
+factorial_without_recursion() {
+  fact=$1
+  f=1
+  while [ $fact -gt 0 ]; do
+    f=$((f * fact))
+    fact=$((fact - 1))
+  done
+  echo $f
+}
+
+if [ $# -eq 0 ]; then
+  echo "Arguments not found"
+  exit 1
+fi
+
+result=$(factorial_with_recursion $1)
+echo "Factorial with recursion: $result"
+
+result=$(factorial_without_recursion $1)
+echo "Factorial without recursion: $result"
+
+# 5) Program to check file type and permission for a given file
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+  echo "Arguments not found"
+  exit 1
+fi
+
+file=$1
+if [ -e "$file" ]; then
+  echo "File type:"
+  ch=`ls -l $file | cut -c 1`
+  case "$ch" in
+    -) echo "ordinary file" ;;
+    b) echo "block special file" ;;
+    c) echo "character special file" ;;
+    d) echo "directory" ;;
+    l) echo "symbolic link" ;;
+    s) echo "socket file" ;;
+    p) echo "FIFO (named pipe)" ;;
+    *) echo "unknown type" ;;
+  esac
+  
+  echo "File Permissions:"
+  ls -l "$file" | awk '{print $1}'
+else
+  echo "Error: The file does not exist"
+fi
+
+# 6) Check if entered string is palindrome or not
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+  echo "Arguments not found"
+  exit 1
+fi
+
+str=$1
+len=${#str}
+is_palindrome=1
+i=1
+
+while [ $i -le $len ]
+do
+  ch1=`echo $str | cut -c $i`
+  ch2=`echo $str | cut -c $len`
+  if [ "$ch1" != "$ch2" ]; then
+    is_palindrome=0
+    break
+  fi
+  i=$((i + 1))
+  len=$((len - 1))
+done
+
+if [ $is_palindrome -eq 1 ]; then
+  echo "The string '$str' is a palindrome"
+else
+  echo "The string '$str' is not a palindrome"
+fi
+
+#!/bin/bash
+
+# File storing student database
+db_file="student_db.txt"
+
+# Function to insert a new record
+insert_record() {
+  echo "Enter student ID:"
+  read id
+  echo "Enter student name:"
+  read name
+  echo "Enter student marks:"
+  read marks
+  echo "$id|$name|$marks" >> $db_file
+  echo "Record inserted successfully."
+}
+
+# Function to delete a record
+delete_record() {
+  echo "Enter student ID to delete:"
+  read id
+  grep -v "^$id|" $db_file > temp.txt && mv temp.txt $db_file
+  echo "Record deleted successfully."
+}
+
+# Function to update a record
+update_record() {
+  echo "Enter student ID to update:"
+  read id
+  echo "Enter new name:"
+  read new_name
+  echo "Enter new marks:"
+  read new_marks
+  sed -i "/^$id|/s/[^|]*|[^|]*/$id|$new_name|$new_marks/" $db_file
+  echo "Record updated successfully."
+}
+
+# Function to search for a record
+search_record() {
+  echo "Enter student ID to search:"
+  read id
+  grep "^$id|" $db_file
+  if [ $? -eq 0 ]; then
+    echo "Record found."
+  else
+    echo "Record not found."
+  fi
+}
+
+# Main menu for user to choose operation
+menu() {
+  echo "Choose operation:"
+  echo "1) Insert Record"
+  echo "2) Delete Record"
+  echo "3) Update Record"
+  echo "4) Search Record"
+  echo "5) Exit"
+  read choice
+  case $choice in
+    1) insert_record ;;
+    2) delete_record ;;
+    3) update_record ;;
+    4) search_record ;;
+    5) exit 0 ;;
+    *) echo "Invalid choice! Please try again." ; menu ;;
+  esac
+}
+
+# Call the menu function to display the operations
+menu
+
+101|Atharva|95
+102|Tanaya|75
+103|Tejas|88
+
+#!/bin/bash
+
+# Source file to read from
+source_file="source.txt"
+
+# Destination file to copy contents to
+destination_file="destination.txt"
+
+# Check if source file exists
+if [ ! -f "$source_file" ]; then
+  echo "Source file does not exist."
+  exit 1
+fi
+
+# Open the source file and copy contents line by line
+while IFS= read -r line
+do
+  # Read each character of the line and append to the destination file
+  for (( i=0; i<${#line}; i++ ))
+  do
+    char="${line:$i:1}"
+    echo -n "$char" >> $destination_file
+  done
+  echo "" >> $destination_file  # Adding a newline after each line
+done < "$source_file"
+
+echo "File contents copied successfully from $source_file to $destination_file."
+
+#!/bin/bash
+
+source_file="source.txt"
+destination_file="destination.txt"
+
+if [ ! -f "$source_file" ]; then
+  echo "Source file does not exist."
+  exit 1
+fi
+
+# Copy file content line by line
+while IFS= read -r line
+do
+  echo "$line" >> "$destination_file"
+done < "$source_file"
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string.h>
+#include <errno.h>
+#include <signal.h>
+#include <sys/utsname.h>
+
+// Process related system calls
+void fork_example();
+void exit_example();
+void wait_example();
+void kill_example();
+void exec_example();
+
+// File related system calls
+void open_read_write_example();
+void link_unlink_example();
+void stat_example();
+
+// Communication related system calls
+void pipe_example();
+void fifo_example();
+
+// Information related system calls
+void getpid_example();
+void getppid_example();
+void uname_example();
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\nMenu Driven System Call Demonstration\n");
+        printf("1. Process related system calls\n");
+        printf("2. File related system calls\n");
+        printf("3. Communication related system calls\n");
+        printf("4. Information related system calls\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        switch(choice) {
+            case 1:
+                printf("1. Fork\n2. Exit\n3. Wait\n4. Kill\n5. Exec\n");
+                printf("Enter your choice: ");
+                scanf("%d", &choice);
+                if(choice == 1) fork_example();
+                else if(choice == 2) exit_example();
+                else if(choice == 3) wait_example();
+                else if(choice == 4) kill_example();
+                else if(choice == 5) exec_example();
+                break;
+            case 2:
+                printf("1. Open, Read, Write, Close\n2. Link, Unlink\n3. Stat\n");
+                printf("Enter your choice: ");
+                scanf("%d", &choice);
+                if(choice == 1) open_read_write_example();
+                else if(choice == 2) link_unlink_example();
+                else if(choice == 3) stat_example();
+                break;
+            case 3:
+                printf("1. Pipe\n2. FIFO\n");
+                printf("Enter your choice: ");
+                scanf("%d", &choice);
+                if(choice == 1) pipe_example();
+                else if(choice == 2) fifo_example();
+                break;
+            case 4:
+                printf("1. Get PID\n2. Get PPID\n3. Uname\n");
+                printf("Enter your choice: ");
+                scanf("%d", &choice);
+                if(choice == 1) getpid_example();
+                else if(choice == 2) getppid_example();
+                else if(choice == 3) uname_example();
+                break;
+            case 5:
+                exit(0);
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+// Process related system calls
+void fork_example() {
+    pid_t pid = fork();
+    if (pid == 0) {
+        printf("Child process: PID = %d\n", getpid());
+    } else {
+        printf("Parent process: PID = %d\n", getpid());
+        wait(NULL); // Wait for child to finish
+    }
+}
+
+void exit_example() {
+    printf("This process will terminate using exit().\n");
+    exit(0);
+}
+
+void wait_example() {
+    pid_t pid = fork();
+    if (pid == 0) {
+        printf("Child process running. PID = %d\n", getpid());
+        sleep(2); // Simulate some work in child
+        exit(0);
+    } else {
+        printf("Parent waiting for child to terminate.\n");
+        wait(NULL);
+        printf("Child terminated.\n");
+    }
+}
+
+void kill_example() {
+    pid_t pid = fork();
+    if (pid == 0) {
+        printf("Child process running. PID = %d\n", getpid());
+        while(1); // Infinite loop
+    } else {
+        sleep(1);
+        printf("Killing child process.\n");
+        kill(pid, SIGKILL); // Terminate the child process
+        wait(NULL);
+    }
+}
+
+void exec_example() {
+    pid_t pid = fork();
+    if (pid == 0) {
+        execl("/bin/ls", "ls", NULL); // Replace child process with `ls` command
+    } else {
+        wait(NULL);
+    }
+}
+
+// File related system calls
+void open_read_write_example() {
+    int fd;
+    char buffer[100];
+    fd = open("demo_output.txt", O_CREAT | O_RDWR, 0644);
+    if (fd == -1) {
+        perror("Error opening file");
+        return;
+    }
+    write(fd, "Hello, World!\n", 14);
+    lseek(fd, 0, SEEK_SET); // Move to beginning of the file
+    read(fd, buffer, sizeof(buffer));
+    printf("File content: %s\n", buffer);
+    close(fd);
+}
+
+void link_unlink_example() {
+    link("demo_output.txt", "testfile_link.txt");
+    printf("Link created.\n");
+    unlink("testfile_link.txt");
+    printf("Link removed.\n");
+}
+
+void stat_example() {
+    struct stat fileStat;
+    if(stat("demo_output.txt",&fileStat) < 0) {
+        perror("Error getting file stats");
+        return;
+    }
+    printf("Information for demo_output.txt:\n");
+    printf("File Size: \t\t%ld bytes\n", fileStat.st_size);
+    printf("Number of Links: \t%ld\n", fileStat.st_nlink);
+    printf("File inode: \t\t%ld\n", fileStat.st_ino);
+    printf("File Permissions: \t");
+    printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
+    printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
+    printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
+    printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
+    printf("\n");
+}
+
+// Communication related system calls
+void pipe_example() {
+    int fd[2];
+    pid_t pid;
+    char buffer[100];
+    if (pipe(fd) == -1) {
+        perror("Pipe failed");
+        return;
+    }
+    pid = fork();
+    if (pid == 0) {
+        // Child process
+        close(fd[0]); // Close read end
+        write(fd[1], "Hello from child!\n", 18);
+        close(fd[1]);
+    } else {
+        // Parent process
+        close(fd[1]); // Close write end
+        read(fd[0], buffer, sizeof(buffer));
+        printf("Parent received: %s\n", buffer);
+        close(fd[0]);
+        wait(NULL);
+    }
+}
+
+void fifo_example() {
+    char *fifo = "/tmp/myfifo";
+    mkfifo(fifo, 0666);
+    if(fork() == 0) {
+        int fd = open(fifo, O_WRONLY);
+        write(fd, "Hello via FIFO!\n", 16);
+        close(fd);
+    } else {
+        char buffer[100];
+        int fd = open(fifo, O_RDONLY);
+        read(fd, buffer, sizeof(buffer));
+        printf("Parent received: %s\n", buffer);
+        close(fd);
+        wait(NULL);
+    }
+    unlink(fifo);
+}
+
+// Information related system calls
+void getpid_example() {
+    printf("Process ID: %d\n", getpid());
+}
+
+void getppid_example() {
+    printf("Parent Process ID: %d\n", getppid());
+}
+
+void uname_example() {
+    struct utsname buffer;
+    if (uname(&buffer) < 0) {
+        perror("Uname failed");
+        return;
+    }
+    printf("Group ID: %d\n", getgid());
+    printf("System page size: %ld bytes\n", sysconf(_SC_PAGESIZE));
+    printf("System name: %s\n", buffer.sysname);
+    printf("Node name: %s\n", buffer.nodename);
+    printf("Release: %s\n", buffer.release);
+    printf("Version: %s\n", buffer.version);
+    printf("Machine: %s\n", buffer.machine);
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+int **matrix1, **matrix2, **result_add, **result_sub, **result_mul;
+int SIZE;
+
+void *add_matrices(void *arg);
+void *subtract_matrices(void *arg);
+void *multiply_matrices(void *arg);
+void initialize_matrices();
+void display_matrix(int **matrix);
+void allocate_memory();
+
+void allocate_memory() {
+    matrix1 = (int **)malloc(SIZE * sizeof(int *));
+    matrix2 = (int **)malloc(SIZE * sizeof(int *));
+    result_add = (int **)malloc(SIZE * sizeof(int *));
+    result_sub = (int **)malloc(SIZE * sizeof(int *));
+    result_mul = (int **)malloc(SIZE * sizeof(int *));
+    for (int i = 0; i < SIZE; i++) {
+        matrix1[i] = (int *)malloc(SIZE * sizeof(int));
+        matrix2[i] = (int *)malloc(SIZE * sizeof(int));
+        result_add[i] = (int *)malloc(SIZE * sizeof(int));
+        result_sub[i] = (int *)malloc(SIZE * sizeof(int));
+        result_mul[i] = (int *)malloc(SIZE * sizeof(int));
+    }
+}
+
+void initialize_matrices() {
+    printf("Enter the size of the matrix: ");
+    scanf("%d", &SIZE);
+    
+    allocate_memory();
+
+    printf("Enter elements of Matrix 1:\n");
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            printf("Matrix1[%d][%d]: ", i, j);
+            scanf("%d", &matrix1[i][j]);
+        }
+    }
+
+    printf("Enter elements of Matrix 2:\n");
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            printf("Matrix2[%d][%d]: ", i, j);
+            scanf("%d", &matrix2[i][j]);
+        }
+    }
+
+    printf("Matrix 1:\n");
+    display_matrix(matrix1);
+    printf("Matrix 2:\n");
+    display_matrix(matrix2);
+}
+
+void display_matrix(int **matrix) {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            printf("%d ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void *add_matrices(void *arg) {
+    printf("Addition Thread Started.\n");
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            result_add[i][j] = matrix1[i][j] + matrix2[i][j];
+        }
+    }
+    printf("Addition Result:\n");
+    display_matrix(result_add);
+    printf("Addition Thread Finished.\n");
+    
+    int *exit_status = malloc(sizeof(int));  
+    *exit_status = 0;  
+    pthread_exit(exit_status);  
+}
+
+void *subtract_matrices(void *arg) {
+    printf("Subtraction Thread Started.\n");
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            result_sub[i][j] = matrix1[i][j] - matrix2[i][j];
+        }
+    }
+    printf("Subtraction Result:\n");
+    display_matrix(result_sub);
+    printf("Subtraction Thread Finished.\n");
+    
+    int *exit_status = malloc(sizeof(int));  
+    *exit_status = 1;
+    pthread_exit(exit_status);  
+}
+
+void *multiply_matrices(void *arg) {
+    printf("Multiplication Thread Started.\n");
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            result_mul[i][j] = 0;
+            for (int k = 0; k < SIZE; k++) {
+                result_mul[i][j] += matrix1[i][k] * matrix2[k][j];
+            }
+        }
+    }
+    printf("Multiplication Result:\n");
+    display_matrix(result_mul);
+    printf("Multiplication Thread Finished.\n");
+
+    int *exit_status = malloc(sizeof(int));  
+    *exit_status = 2;  
+    pthread_exit(exit_status);  
+}
+
+int main() {
+    pthread_t tid1, tid2, tid3;
+    void *status;
+
+    initialize_matrices();
+
+    if (pthread_create(&tid1, NULL, add_matrices, NULL) != 0) {
+        perror("Error creating addition thread");
+        return 1;
+    }
+    if (pthread_create(&tid2, NULL, subtract_matrices, NULL) != 0) {
+        perror("Error creating subtraction thread");
+        return 1;
+    }
+    if (pthread_create(&tid3, NULL, multiply_matrices, NULL) != 0) {
+        perror("Error creating multiplication thread");
+        return 1;
+    }
+
+    if (pthread_join(tid1, &status) != 0) {
+        perror("Error joining addition thread");
+        return 1;
+    }
+    printf("Addition Thread Exit Status: %d\n", *((int *)status));
+    free(status);  
+
+    if (pthread_join(tid2, &status) != 0) {
+        perror("Error joining subtraction thread");
+        return 1;
+    }
+    printf("Subtraction Thread Exit Status: %d\n", *((int *)status));
+    free(status);  
+
+    if (pthread_join(tid3, &status) != 0) {
+        perror("Error joining multiplication thread");
+        return 1;
+    }
+    printf("Multiplication Thread Exit Status: %d\n", *((int *)status));
+    free(status);  
+
+    for (int i = 0; i < SIZE; i++) {
+        free(matrix1[i]);
+        free(matrix2[i]);
+        free(result_add[i]);
+        free(result_sub[i]);
+        free(result_mul[i]);
+    }
+    free(matrix1);
+    free(matrix2);
+    free(result_add);
+    free(result_sub);
+    free(result_mul);
+
+    return 0;
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main() {
+    pid_t pid = fork();
+
+    if (pid > 0) {
+        // Parent process
+        printf("Parent Process (PID: %d). Sleeping for a while...\n", getpid());
+        sleep(10);  // Allow time for the child to become a zombie
+    } else if (pid == 0) {
+        // Child process
+        printf("Child Process (PID: %d). Exiting...\n", getpid());
+        exit(0);  // Child exits, becoming a zombie
+    } else {
+        perror("fork failed");
+        return 1;
+    }
+
+    return 0;
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main() {
+    pid_t pid = fork();
+
+    if (pid > 0) {
+        // Parent process
+        printf("Parent Process (PID: %d). Exiting...\n", getpid());
+        exit(0);  // Parent exits, child becomes orphan
+    } else if (pid == 0) {
+        // Child process
+        sleep(5);  // Allow time for child to run after parent exits
+        printf("Orphan Child Process (PID: %d, Parent PID: %d)\n", getpid(), getppid());
+    } else {
+        perror("fork failed");
+        return 1;
+    }
+
+    return 0;
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main() {
+    int arr[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    int size = sizeof(arr) / sizeof(arr[0]);
+    pid_t pid;
+    int even_sum = 0, odd_sum = 0;
+
+    pid = fork();
+
+    if (pid > 0) {
+        // Parent process: Calculates sum of even numbers
+        wait(NULL);  // Wait for the child process to finish
+        for (int i = 0; i < size; i++) {
+            if (arr[i] % 2 == 0) {
+                even_sum += arr[i];
+            }
+        }
+        printf("Parent Process (PID: %d): Sum of even numbers = %d\n", getpid(), even_sum);
+    } else if (pid == 0) {
+        // Child process: Calculates sum of odd numbers
+        for (int i = 0; i < size; i++) {
+            if (arr[i] % 2 != 0) {
+                odd_sum += arr[i];
+            }
+        }
+        printf("Child Process (PID: %d): Sum of odd numbers = %d\n", getpid(), odd_sum);
+        exit(0);
+    } else {
+        perror("fork failed");
+        return 1;
+    }
+
+    return 0;
+}
+
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+
+pthread_mutex_t mutex;   // Mutex for read_count
+pthread_mutex_t wrt;     // Mutex for writer process
+int read_count = 0;      // Number of readers
+
+// Reader function
+void *reader(void *arg) {
+    int reader_id = *((int *)arg); // Reader ID
+    printf("Reader %d is trying to read\n", reader_id);
+
+    pthread_mutex_lock(&mutex);  // Lock mutex for read_count
+    read_count++;
+    if (read_count == 1) {
+        pthread_mutex_lock(&wrt);  // First reader locks writer mutex
+    }
+    pthread_mutex_unlock(&mutex);  // Unlock mutex
+
+    // Reading section
+    printf("Reader %d is reading\n", reader_id);
+    sleep(1);  // Simulate reading
+    printf("Reader %d has finished reading\n", reader_id);
+
+    pthread_mutex_lock(&mutex);  // Lock mutex for read_count
+    read_count--;
+    if (read_count == 0) {
+        pthread_mutex_unlock(&wrt);  // Last reader unlocks writer mutex
+    }
+    pthread_mutex_unlock(&mutex);  // Unlock mutex
+
+    return NULL;
+}
+
+// Writer function
+void *writer(void *arg) {
+    int writer_id = *((int *)arg); // Writer ID
+    printf("Writer %d is trying to access the resource\n", writer_id);
+
+    pthread_mutex_lock(&wrt);  // Lock writer mutex
+    printf("Writer %d is writing\n", writer_id);
+    sleep(1);  // Simulate writing
+    printf("Writer %d has finished writing\n", writer_id);
+
+    pthread_mutex_unlock(&wrt);  // Unlock writer mutex
+
+    return NULL;
+}
+
+int main() {
+    pthread_t read[5], write[3];  // 5 readers and 3 writers
+    int reader_ids[5], writer_ids[3];
+
+    // Initialize the mutexes
+    pthread_mutex_init(&mutex, NULL);
+    pthread_mutex_init(&wrt, NULL);
+
+    // Create reader and writer threads
+    for (int i = 0; i < 5; i++) {
+        reader_ids[i] = i + 1;
+        pthread_create(&read[i], NULL, reader, &reader_ids[i]);
+    }
+
+    for (int i = 0; i < 3; i++) {
+        writer_ids[i] = i + 1;
+        pthread_create(&write[i], NULL, writer, &writer_ids[i]);
+    }
+
+    // Join reader and writer threads
+    for (int i = 0; i < 5; i++) {
+        pthread_join(read[i], NULL);
+    }
+    for (int i = 0; i < 3; i++) {
+        pthread_join(write[i], NULL);
+    }
+
+    // Destroy the mutexes
+    pthread_mutex_destroy(&mutex);
+    pthread_mutex_destroy(&wrt);
+
+    return 0;
+}//RW me
+
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
+
+int NUMBEROFREADERS;
+int NUMBEROFWRITERS;
+
+pthread_mutex_t mutex;   
+pthread_mutex_t writeLock; 
+int readCount = 0;   
+int sharedData = 80; 
+
+void readData(int readerId) {
+    usleep(rand() % 2000000); // Simulate time for reading
+    printf("\nReader %d read data: %d\n", readerId, sharedData);
+}
+
+void *reader(void *arg) {
+    int readerId = *(int *)arg;
+    printf("\nReader %d is trying to access critical region\n", readerId);
+
+    pthread_mutex_lock(&mutex);
+    readCount++;
+    if (readCount == 1)
+        pthread_mutex_lock(&writeLock);
+    pthread_mutex_unlock(&mutex);
+
+    printf("\nReader %d has got access to critical section\n", readerId);
+    readData(readerId);
+
+    pthread_mutex_lock(&mutex);
+    readCount--;
+    printf("\nReader %d has left the critical section\n", readerId);
+    if (readCount == 0)
+        pthread_mutex_unlock(&writeLock);
+    pthread_mutex_unlock(&mutex);
+
+}
+
+int produceData() {
+    return rand() % 100;
+}
+
+void writeOnCriticalSection(int data, int writerId) {
+    sharedData = data;
+    usleep(rand() % 2000000); // Simulate time for writing
+    printf("\nWriter %d wrote data: %d\n", writerId, sharedData);
+}
+
+// Writer function
+void *writer(void *arg) {
+    int writerId = *(int *)arg;
+    int dataToBeWritten = produceData();
+    printf("\nWriter %d is trying to access critical region\n", writerId);
+
+    pthread_mutex_lock(&writeLock);
+    printf("\nWriter %d has got access to critical region\n", writerId);
+
+    writeOnCriticalSection(dataToBeWritten, writerId);
+
+    printf("\nWriter %d has left the critical section\n", writerId);
+    pthread_mutex_unlock(&writeLock); 
+}
+
+int main() {
+    printf("\nEnter total Number Of Readers:");
+    scanf("%d",&NUMBEROFREADERS);
+    printf("\nEnter total Number Of Writers:");
+    scanf("%d",&NUMBEROFWRITERS);
+    srand(time(NULL));
+
+    pthread_t read[NUMBEROFREADERS], write[NUMBEROFWRITERS];  // 5 readers and 2 writers
+    int readerIds[NUMBEROFREADERS], writerIds[NUMBEROFWRITERS];
+
+    pthread_mutex_init(&mutex, NULL);
+    pthread_mutex_init(&writeLock, NULL);
+
+    for (int i = 0; i < NUMBEROFREADERS; i++) {
+        readerIds[i] = i;
+        pthread_create(&read[i], NULL, reader, &readerIds[i]);
+    }
+
+    for (int i = 0; i < NUMBEROFWRITERS; i++) {
+        writerIds[i] = i;
+        pthread_create(&write[i], NULL, writer, &writerIds[i]);
+    }
+
+    for (int i = 0; i < NUMBEROFREADERS; i++) {
+        pthread_join(read[i], NULL);
+    }
+    for (int i = 0; i < NUMBEROFWRITERS; i++) {
+        pthread_join(write[i], NULL);
+    }
+
+    pthread_mutex_destroy(&mutex);
+    pthread_mutex_destroy(&writeLock);
+
+    return 0;
+}//RW Nme
+
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+#include <time.h>
+#include <stdlib.h>
+int NUMBEROFREADERS;
+int NUMBEROFWRITERS;
+
+sem_t s;  
+sem_t wrt;    
+int readCount = 0;  
+int sharedData = 80;
+
+void readData(int readerId)
+{
+    usleep(rand() % 2000000);//Reading requires time.
+    printf("\nRead Data:%d from Reader Number:%d\n", sharedData,readerId);
+}
+
+void *reader(void *arg) {
+    int readerId = *(int *)arg;  
+    printf("\nReader %d is trying to access critical region\n", readerId);
+
+    sem_wait(&s);  
+    readCount++;
+    if (readCount == 1)
+        sem_wait(&wrt);  
+    sem_post(&s);  
+
+    printf("\nReader %d has got access to critical section\n",readerId);
+    readData(readerId);
+   
+
+    sem_wait(&s);
+    readCount--;
+    printf("\nReader %d has left the critical section\n",readerId);
+    if (readCount == 0)
+        sem_post(&wrt);  
+    sem_post(&s);  
+
+}
+
+int produceData()
+{
+    return rand() %100;
+}
+
+void writeOnCriticalSection(int data,int writerId)
+{
+    sharedData = data;
+    usleep(rand() % 2000000);//Writing requires time
+    printf("\nWriter %d has wrote. Data Now:%d\n", writerId,sharedData);
+}
+
+// Writer function
+void *writer(void *arg) {
+    int writerId = *((int *)arg); 
+    int dataToBeWritten = produceData();
+    printf("\nWriter %d is trying to access critical region\n", writerId);
+
+    sem_wait(&wrt);     
+    printf("\nWriter %d has got access to critical region\n",writerId);
+    writeOnCriticalSection(dataToBeWritten,writerId);
+    printf("\nWriter %d has left the critical section\n",writerId);
+    sem_post(&wrt);  
+
+}
+
+int main() {
+    srand(time(NULL));
+    printf("\nEnter total number Of Readers:");
+    scanf("%d",&NUMBEROFREADERS);
+    printf("\nEnter total number of Writers:");
+    scanf("%d",&NUMBEROFWRITERS);
+
+    pthread_t read[NUMBEROFREADERS], write[NUMBEROFWRITERS];
+    int readerIds[NUMBEROFREADERS], writerIds[NUMBEROFWRITERS];
+
+    sem_init(&s, 0, 1);  
+    sem_init(&wrt, 0, 1);    
+
+    for (int i = 0; i < NUMBEROFREADERS; i++) {
+        readerIds[i] = i;
+        pthread_create(&read[i], NULL, reader, &readerIds[i]);
+    }
+
+    for (int i = 0; i < NUMBEROFWRITERS; i++) {
+        writerIds[i] = i;
+        pthread_create(&write[i], NULL, writer, &writerIds[i]);
+    }
+
+    for (int i = 0; i < NUMBEROFREADERS; i++) {
+        pthread_join(read[i], NULL);
+    }
+    for (int i = 0; i < NUMBEROFWRITERS; i++) {
+        pthread_join(write[i], NULL);
+    }
+
+    sem_destroy(&s);
+    sem_destroy(&wrt);
+
+    return 0;
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <time.h>
+
+#define BUFFER_SIZE 5  
+
+int buffer[BUFFER_SIZE];  
+int count = 0;            
+
+pthread_mutex_t mutex;  // For mutual exclusion
+pthread_cond_t bufferNotFull;  // Condition variable to check if the buffer is not full
+pthread_cond_t bufferNotEmpty;  // Condition variable to check if the buffer is not empty
+
+void displayBuffer() {
+    printf("[ ");
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        if (i < count)
+            printf("%d ", buffer[i]);
+        else
+            printf("- "); 
+    }
+    printf("] ");
+    
+    if (count == 0) {
+        printf("(Buffer is empty)\n");
+    } else if (count == BUFFER_SIZE) {
+        printf("(Buffer is full)\n");
+    } else {
+        printf("\n");
+    }
+}
+
+int produceItem() {
+    return rand() % 100;
+}
+
+void addElementToBuffer(int item) {
+    buffer[count] = item;  
+    printf("\nElement %d has been added to buffer\n", item);
+    count++;
+}
+
+void* producer(void* arg) {
+    while (1) {
+        int item = produceItem();  
+        printf("\nProducer is trying to access critical section\n");
+
+        pthread_mutex_lock(&mutex);  // Lock mutex to enter critical section
+        
+        // Wait until buffer is full
+        while (count == BUFFER_SIZE) {
+            printf("\nProducer waiting, buffer is full\n");
+            pthread_cond_wait(&bufferNotFull, &mutex);
+        }   
+
+        printf("\nProducer has got access to critical section\n");
+        addElementToBuffer(item);
+        printf("\nBuffer after adding element:");
+        displayBuffer();  
+
+        printf("\nProducer has left the critical section\n");
+        pthread_cond_signal(&bufferNotEmpty);  // Signal consumer that buffer is not empty
+        pthread_mutex_unlock(&mutex);  // Unlock mutex after leaving critical section
+
+        usleep(rand() % 2000000);  // Simulate time taken to produce an item
+    }
+}
+
+int removeElementFromBuffer() {
+    count--;
+    int item = buffer[count];  
+    return item;
+}
+
+void consumeItem(int item) {
+    printf("\nElement %d has been consumed\n", item);
+}
+
+void* consumer(void* arg) {
+    while (1) {
+        printf("\nConsumer is trying to access critical section\n");
+
+        pthread_mutex_lock(&mutex);  // Lock mutex to enter critical section
+        
+        // Wait until buffer is not empty
+        while (count == 0) {
+            printf("\nConsumer waiting, buffer is empty\n");
+            pthread_cond_wait(&bufferNotEmpty, &mutex);
+        }
+
+        printf("\nConsumer has got access to critical section\n");
+        
+        int item = removeElementFromBuffer();  
+        printf("\nBuffer after removing element:");
+        displayBuffer();  
+
+        printf("\nConsumer has left the critical section\n");
+        pthread_cond_signal(&bufferNotFull);  
+        pthread_mutex_unlock(&mutex); 
+        
+        consumeItem(item);
+
+        usleep(rand() % 2000000);  
+    }
+}
+
+int main() {
+    srand(time(NULL));
+    pthread_t prod_thread, cons_thread;
+
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&bufferNotFull, NULL);
+    pthread_cond_init(&bufferNotEmpty, NULL);
+
+    pthread_create(&prod_thread, NULL, producer, NULL);
+    pthread_create(&cons_thread, NULL, consumer, NULL);
+
+    pthread_join(prod_thread, NULL);
+    pthread_join(cons_thread, NULL);
+
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&bufferNotFull);
+    pthread_cond_destroy(&bufferNotEmpty);
+
+    return 0;
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+#include <time.h>
+
+#define BUFFER_SIZE 5  
+
+int buffer[BUFFER_SIZE];  
+int count = 0;            
+
+sem_t empty;
+sem_t full;   
+sem_t s;  
+
+
+void displayBuffer() {
+    printf("[ ");
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        if (i < count)
+            printf("%d ", buffer[i]);
+        else
+            printf("- "); 
+    }
+    printf("] ");
+    
+    if (count == 0) {
+        printf("(Buffer is empty)\n");
+    } else if (count == BUFFER_SIZE) {
+        printf("(Buffer is full)\n");
+    } else {
+        printf("\n");
+    }
+}
+
+int produceItem()
+{
+    return rand() % 100;
+}
+
+void addElementToBuffer(int item)
+{
+    buffer[count] = item;  
+    printf("\nElement %d has been added to buffer\n",item);
+    count++;
+}
+
+void* producer(void* arg) {
+    while (1) {
+        int item = produceItem();  
+        printf("\nProducer is trying to access critical section\n");
+
+        sem_wait(&empty); 
+        sem_wait(&s);  
+
+        printf("\nProducer has got access to critical section\n");
+        addElementToBuffer(item);
+        printf("\nBuffer after adding element:");
+        displayBuffer();  
+
+        printf("\nProducer has left the critical section\n");
+        sem_post(&full);
+        sem_post(&s);  
+
+        usleep(rand() % 2000000);  
+    }
+}
+
+int removeElementFromBuffer()
+{
+    count--;
+    int item = buffer[count];  
+    return item;
+}
+
+void consumeItem(int item)
+{
+    printf("\nElement %d has been consumed\n",item);
+}
+
+
+void* consumer(void* arg) {
+    while (1) {
+        printf("\nConsumer is trying to access critical section\n");
+        sem_wait(&full);  
+        sem_wait(&s);  
+
+        printf("\nConsumer has got access to critical section\n");
+        
+        int item = removeElementFromBuffer();  
+        printf("\nBuffer after removing element:");
+        displayBuffer();  
+
+        printf("\nConsumer has left the critical section\n");
+        sem_post(&empty);  
+        sem_post(&s);  
+        consumeItem(item);
+
+        usleep(rand() % 2000000);  
+    }
+}
+
+int main() {
+    srand(time(NULL));
+    pthread_t prod_thread, cons_thread;
+
+
+    sem_init(&empty, 0, BUFFER_SIZE);  
+    sem_init(&full, 0, 0); 
+    sem_init(&s, 0, 1);
+
+    pthread_create(&prod_thread, NULL, producer, NULL);
+    pthread_create(&cons_thread, NULL, consumer, NULL);
+
+    // Wait for threads to finish (optional, typically runs indefinitely)
+    pthread_join(prod_thread, NULL);
+    pthread_join(cons_thread, NULL);
+
+
+    sem_destroy(&empty);
+    sem_destroy(&full);
+    sem_destroy(&s);
+
+    return 0;
+}
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<pthread.h>
+#include<semaphore.h>
+#include<unistd.h>
+#include<time.h>
+#define N 5
+#define THINKING 0
+#define HUNGRY 1
+#define EATING 2
+sem_t s,semaphores[N];
+int states[N];
+
+void thinking(int philNumber)
+{
+    states[philNumber] = THINKING;
+    printf("\nPhilosopher %d is thinking.\n",philNumber);
+    usleep(rand() % 2000000);
+}
+
+void test(int philNumber)
+{
+    if(states[philNumber]==HUNGRY && states[(philNumber+1)%N]!=EATING && states[(philNumber-1+N)%N]!=EATING )
+    {
+        states[philNumber] = EATING;
+        sem_post(&semaphores[philNumber]);
+    }
+}
+
+void takeForks(int philNumber)
+{
+    sem_wait(&s);
+    states[philNumber] = HUNGRY;
+    printf("\nPhilosopher %d is hungry.\n",philNumber);
+    test(philNumber);
+    sem_post(&s);
+    sem_wait(&semaphores[philNumber]);
+}
+
+void eating(int philNumber)
+{
+    states[philNumber] = EATING;
+    printf("\nPhilosopher %d is eating.\n",philNumber);
+    usleep(rand() % 2000000);
+}
+
+void putForks(int philNumber)
+{
+    sem_wait(&s);
+    states[philNumber] = THINKING;
+    printf("\nPhilosopher %d has done eating.\n",philNumber);
+    test((philNumber+1)%N);
+    test((philNumber-1+N)%N);
+    sem_post(&s);
+}
+
+void *philosopher(void *args)
+{
+    int philNumber = *(int *)args;
+    thinking(philNumber);
+    takeForks(philNumber);
+    eating(philNumber);
+    putForks(philNumber);
+}
+
+void main()
+{
+    srand(time(NULL));
+    pthread_t threads[N];
+    int philNumber[N];
+
+    sem_init(&s,0,1);
+    for(int i = 0 ; i < N ; i++)
+    {
+        philNumber[i] = i;
+        sem_init(&semaphores[i],0,0);
+    }
+
+    for(int i = 0 ; i < N ; i++)
+    {
+        pthread_create(&threads[i],NULL,philosopher,&philNumber[i]);
+    }
+
+    for(int i = 0 ; i < N ; i++)
+    {
+        pthread_join(threads[i],NULL);
+    }
+
+
+    sem_destroy(&s);
+    for(int i = 0 ; i < N ; i++)
+        sem_destroy(&semaphores[i]);
+}
+
