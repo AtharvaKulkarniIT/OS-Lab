@@ -2056,3 +2056,85 @@ public class DiskScheduling {
         sc.close();
     }
 }
+
+
+//Bankers
+import java.util.Scanner;
+
+public class BankersAlgorithm {
+
+    static boolean isSafe(int[][] allocation, int[][] max, int[] available, int numProcesses, int numResources) {
+        int[] work = available.clone();
+        boolean[] finish = new boolean[numProcesses];
+        int[] safeSequence = new int[numProcesses];
+        int count = 0;
+
+        while (count < numProcesses) {
+            boolean found = false;
+            for (int p = 0; p < numProcesses; p++) {
+                if (!finish[p]) {
+                    boolean canAllocate = true;
+                    for (int r = 0; r < numResources; r++) {
+                        if (max[p][r] - allocation[p][r] > work[r]) {
+                            canAllocate = false;
+                            break;
+                        }
+                    }
+                    if (canAllocate) {
+                        for (int r = 0; r < numResources; r++) {
+                            work[r] += allocation[p][r];
+                        }
+                        safeSequence[count++] = p;
+                        finish[p] = true;
+                        found = true;
+                    }
+                }
+            }
+            if (!found) {
+                System.out.println("System is not in a safe state.");
+                return false;
+            }
+        }
+
+        System.out.println("System is in a safe state.\nSafe Sequence: ");
+        for (int i : safeSequence) {
+            System.out.print("P" + i + " ");
+        }
+        System.out.println();
+        return true;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of processes: ");
+        int numProcesses = sc.nextInt();
+        System.out.print("Enter number of resources: ");
+        int numResources = sc.nextInt();
+
+        int[][] allocation = new int[numProcesses][numResources];
+        int[][] max = new int[numProcesses][numResources];
+        int[] available = new int[numResources];
+
+        System.out.println("Enter allocation matrix:");
+        for (int i = 0; i < numProcesses; i++) {
+            for (int j = 0; j < numResources; j++) {
+                allocation[i][j] = sc.nextInt();
+            }
+        }
+
+        System.out.println("Enter max matrix:");
+        for (int i = 0; i < numProcesses; i++) {
+            for (int j = 0; j < numResources; j++) {
+                max[i][j] = sc.nextInt();
+            }
+        }
+
+        System.out.println("Enter available resources:");
+        for (int i = 0; i < numResources; i++) {
+            available[i] = sc.nextInt();
+        }
+
+        isSafe(allocation, max, available, numProcesses, numResources);
+        sc.close();
+    }
+}
