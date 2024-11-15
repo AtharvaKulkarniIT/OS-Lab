@@ -2275,3 +2275,111 @@ public class PageReplacement {
     }
 }
 
+//file line by line/char by char
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_LINE_LENGTH 1024  // Maximum length for one line of text
+
+// Function to copy file character by character
+void copyFileCharacterByCharacter(FILE *source, FILE *destination) {
+    char ch;
+
+    // Read character by character from the source file and write to destination
+    while ((ch = fgetc(source)) != EOF) {
+        fputc(ch, destination);
+    }
+    printf("\nFile copied character by character successfully.\n");
+}
+
+// Function to copy file line by line
+void copyFileLineByLine(FILE *source, FILE *destination) {
+    char line[MAX_LINE_LENGTH];
+
+    // Read each line from the source file and write to destination
+    while (fgets(line, sizeof(line), source) != NULL) {
+        fputs(line, destination);
+    }
+    printf("\nFile copied line by line successfully.\n");
+}
+
+// Function to display the contents of the destination file
+void displayFileContents(const char *fileName) {
+    FILE *file = fopen(fileName, "r");
+    if (file == NULL) {
+        printf("Error: Could not open file %s for reading\n", fileName);
+        return;
+    }
+
+    char ch;
+    printf("\nContents of %s:\n", fileName);
+    while ((ch = fgetc(file)) != EOF) {
+        putchar(ch);  // Display character by character
+    }
+    printf("\n");
+
+    fclose(file);  // Close the file after displaying
+}
+
+int main() {
+    
+    const char *sourceContent = "Hello, world!\nThis is a test file.\nLine 3 content.\n";
+
+    // Hardcoded file names
+    const char *sourceFileName = "source.txt";
+    const char *destinationFileName = "destination.txt";
+
+    // Create and open source file for writing
+    FILE *sourceFile = fopen(sourceFileName, "w");
+    if (sourceFile == NULL) {
+        printf("Error: Could not create source file %s\n", sourceFileName);
+        return 1;
+    }
+
+    // Write hardcoded content to the source file
+    fputs(sourceContent, sourceFile);
+    fclose(sourceFile);  // Close source file after writing
+
+    // Open the source file for reading
+    sourceFile = fopen(sourceFileName, "r");
+    if (sourceFile == NULL) {
+        printf("Error: Could not open source file %s for reading\n", sourceFileName);
+        return 1;
+    }
+
+    // Open the destination file for writing (overwrites if it exists)
+    FILE *destinationFile = fopen(destinationFileName, "w");
+    if (destinationFile == NULL) {
+        printf("Error: Could not open destination file %s\n", destinationFileName);
+        fclose(sourceFile);
+        return 1;
+    }
+
+    // Copy file character by character
+    copyFileCharacterByCharacter(sourceFile, destinationFile);
+
+    // Close both files after character-by-character copy
+    fclose(sourceFile);
+    fclose(destinationFile);
+
+    // Reopen files for line-by-line copy
+    sourceFile = fopen(sourceFileName, "r");
+    destinationFile = fopen(destinationFileName, "a");  // Open in append mode for line-by-line copy
+
+    if (sourceFile == NULL || destinationFile == NULL) {
+        printf("Error: Could not reopen files for line-by-line copy.\n");
+        return 1;
+    }
+
+    // Copy file line by line
+    copyFileLineByLine(sourceFile, destinationFile);
+
+    // Close the files after line-by-line copy
+    fclose(sourceFile);
+    fclose(destinationFile);
+
+    // Display the contents of the destination file after copying
+    displayFileContents(destinationFileName);
+
+    return 0;
+}
