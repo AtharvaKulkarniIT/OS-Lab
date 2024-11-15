@@ -1979,3 +1979,80 @@ public class DiskScheduling {
     }
 }
 
+//Disk FCFS,SSTF
+import java.util.Scanner;
+import java.util.Arrays;
+
+public class DiskScheduling {
+
+    static void fcfs(int[] requests, int head) {
+        System.out.println("\nFCFS Disk Scheduling:");
+        int totalSeekTime = 0;
+        System.out.printf("%-10s %-10s %-10s\n", "Head", "Request", "Seek Time");
+
+        for (int request : requests) {
+            int seekTime = Math.abs(head - request);
+            totalSeekTime += seekTime;
+            System.out.printf("%-10d %-10d %-10d\n", head, request, seekTime);
+            head = request;
+        }
+        System.out.println("Total Seek Time: " + totalSeekTime);
+    }
+
+    static void sstf(int[] requests, int head) {
+        System.out.println("\nSSTF Disk Scheduling:");
+        int totalSeekTime = 0;
+        boolean[] visited = new boolean[requests.length];
+        Arrays.fill(visited, false);
+        System.out.printf("%-10s %-10s %-10s\n", "Head", "Request", "Seek Time");
+
+        for (int i = 0; i < requests.length; i++) {
+            int closestIndex = -1;
+            int closestSeekTime = Integer.MAX_VALUE;
+
+            for (int j = 0; j < requests.length; j++) {
+                if (!visited[j]) {
+                    int seekTime = Math.abs(head - requests[j]);
+                    if (seekTime < closestSeekTime) {
+                        closestSeekTime = seekTime;
+                        closestIndex = j;
+                    }
+                }
+            }
+
+            if (closestIndex != -1) {
+                visited[closestIndex] = true;
+                totalSeekTime += closestSeekTime;
+                System.out.printf("%-10d %-10d %-10d\n", head, requests[closestIndex], closestSeekTime);
+                head = requests[closestIndex];
+            }
+        }
+        System.out.println("Total Seek Time: " + totalSeekTime);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the number of disk requests: ");
+        int n = sc.nextInt();
+        int[] requests = new int[n];
+
+        System.out.println("Enter the disk requests:");
+        for (int i = 0; i < n; i++) {
+            requests[i] = sc.nextInt();
+        }
+
+        System.out.print("Enter the initial head position: ");
+        int head = sc.nextInt();
+
+        System.out.println("\nAccepted Input:");
+        System.out.printf("%-10s %-10s\n", "Index", "Request");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("%-10d %-10d\n", i, requests[i]);
+        }
+
+        fcfs(requests, head);
+        sstf(requests, head);
+
+        sc.close();
+    }
+}
