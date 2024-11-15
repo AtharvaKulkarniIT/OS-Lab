@@ -2138,3 +2138,140 @@ public class BankersAlgorithm {
         sc.close();
     }
 }
+
+
+//Page replacement 
+import java.util.Scanner;
+import java.util.Arrays;
+
+public class PageReplacement {
+    static final int MAX_PAGES = 100;
+    static final int MAX_FRAMES = 10;
+
+    public static int FIFO(int[] pages, int n, int frames) {
+        int pageFaults = 0;
+        int[] frame = new int[MAX_FRAMES];
+        int index = 0;
+        Arrays.fill(frame, -1);  // Initialize all frames to -1
+
+        for (int i = 0; i < n; i++) {
+            boolean found = false;
+            for (int j = 0; j < frames; j++) {
+                if (frame[j] == pages[i]) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                frame[index] = pages[i];
+                index = (index + 1) % frames; 
+                pageFaults++;
+            }
+        }
+        return pageFaults;
+    }
+
+    public static int LRU(int[] pages, int n, int frames) {
+        int pageFaults = 0;
+        int[] frame = new int[MAX_FRAMES];
+        int[] lastUsed = new int[MAX_FRAMES];
+        Arrays.fill(frame, -1);  
+        Arrays.fill(lastUsed, -1); 
+
+        for (int i = 0; i < n; i++) {
+            boolean found = false;
+            for (int j = 0; j < frames; j++) {
+                if (frame[j] == pages[i]) {
+                    found = true;
+                    lastUsed[j] = i;
+                    break;
+                }
+            }
+
+            if (!found) {
+                int lruIndex = 0;
+                for (int j = 1; j < frames; j++) {
+                    if (lastUsed[j] < lastUsed[lruIndex]) {
+                        lruIndex = j;  
+                    }
+                }
+                frame[lruIndex] = pages[i];
+                lastUsed[lruIndex] = i;  
+                pageFaults++;
+            }
+        }
+        return pageFaults;
+    }
+
+    public static int Optimal(int[] pages, int n, int frames) {
+        int pageFaults = 0;
+        int[] frame = new int[MAX_FRAMES];
+        Arrays.fill(frame, -1);  
+
+        for (int i = 0; i < n; i++) {
+            boolean found = false;
+            for (int j = 0; j < frames; j++) {
+                if (frame[j] == pages[i]) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                int optimalIndex = -1;
+                int farthest = -1;
+
+                for (int j = 0; j < frames; j++) {
+                    int k;
+                    for (k = i + 1; k < n; k++) {
+                        if (frame[j] == pages[k]) {
+                            if (k > farthest) {
+                                farthest = k;
+                                optimalIndex = j;  
+                            }
+                            break;
+                        }
+                    }
+                    if (k == n) {
+                        optimalIndex = j; 
+                        break;
+                    }
+                }
+                frame[optimalIndex] = pages[i];
+                pageFaults++;
+            }
+        }
+        return pageFaults;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter the number of page frames: ");
+        int frames = sc.nextInt();
+
+        int[] pages = new int[MAX_PAGES];
+        int n = 0;
+        System.out.println("Enter the page reference string (space-separated, end with -1): ");
+        while (true) {
+            String temp = sc.next();
+            if (temp.equals("-1")) {
+                break;
+            }
+            pages[n++] = temp.charAt(0) - 'A';
+        }
+
+        int fifoPageFaults = FIFO(pages, n, frames);
+        int lruPageFaults = LRU(pages, n, frames);
+        int optimalPageFaults = Optimal(pages, n, frames);
+
+       
+        System.out.println("Page faults for FIFO: " + fifoPageFaults);
+        System.out.println("Page faults for LRU: " + lruPageFaults);
+        System.out.println("Page faults for Optimal: " + optimalPageFaults);
+
+        sc.close();
+    }
+}
+
