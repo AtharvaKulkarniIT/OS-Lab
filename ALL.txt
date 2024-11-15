@@ -1566,15 +1566,15 @@ int main() {
     return 0;
 }
 
-
+//CPU scheduling
 import java.util.Scanner;
 
 class Process {
     int pid; // Process ID
     int burstTime;
     int arrivalTime;
-    int priority; // For priority scheduling
-    int remainingTime; // For preemptive scheduling
+    int priority; 
+    int remainingTime; 
     int finishTime;
     int turnaroundTime;
     int waitingTime;
@@ -1706,6 +1706,43 @@ public class SchedulingAlgorithms {
         calculateTimes(processes, n);
     }
 
+    static void priorityPreemptive(Process[] processes, int n) {
+        System.out.println("\nPriority Scheduling (Preemptive):");
+        System.out.print("Scheduling Sequence: ");
+        int completed = 0, time = 0, minIndex;
+        boolean[] finished = new boolean[n];
+
+        for (int i = 0; i < n; i++) {
+            processes[i].remainingTime = processes[i].burstTime;
+            finished[i] = false;
+        }
+
+        while (completed != n) {
+            minIndex = -1;
+            for (int i = 0; i < n; i++) {
+                if (!finished[i] && processes[i].arrivalTime <= time && processes[i].remainingTime > 0) {
+                    if (minIndex == -1 || processes[i].priority < processes[minIndex].priority) {
+                        minIndex = i;
+                    }
+                }
+            }
+            if (minIndex != -1) {
+                System.out.print("P" + processes[minIndex].pid + " ");
+                processes[minIndex].remainingTime--;
+                time++;
+                if (processes[minIndex].remainingTime == 0) {
+                    processes[minIndex].finishTime = time;
+                    finished[minIndex] = true;
+                    completed++;
+                }
+            } else {
+                time++;
+            }
+        }
+        System.out.println();
+        calculateTimes(processes, n);
+    }
+
     static void roundRobin(Process[] processes, int n, int quantum) {
         System.out.println("\nRound Robin:");
         System.out.print("Scheduling Sequence: ");
@@ -1771,6 +1808,8 @@ public class SchedulingAlgorithms {
         sjfPreemptive(processes, n);
         printTimes(processes, n);
         priorityNonPreemptive(processes, n);
+        printTimes(processes, n);
+        priorityPreemptive(processes, n);
         printTimes(processes, n);
         System.out.print("Enter quantum for Round Robin: ");
         int quantum = sc.nextInt();
