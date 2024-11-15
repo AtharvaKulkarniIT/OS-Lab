@@ -1,0 +1,2837 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//sum of number: input: 123
+
+read number
+sum=0
+while [ $number -gt 0 ];
+do
+ digit=$((number%10));
+ sum=$((sum+digit));
+ number=$((number/10));
+done
+echo Sum: $sum;
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//average of numbers: input: 10 20 30
+
+average(){
+  local sum=0
+  local count=0
+  
+  for num in "$@"; do
+   sum=$((sum+num))
+   count=$((count+1))
+  done
+echo Average: $((sum/count))
+}
+read -a numbers
+average "${numbers[@]}"
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//max of num: input: 2024
+
+max_num(){
+  local num=$1
+  local max=0
+while [ $num -gt 0 ]; do
+  digit=$((num%10))
+  if [ $digit -gt $max ]; then
+    max=$digit
+  fi
+  num=$((num/10))
+done
+  
+  echo "Maximum digit: $max"
+}
+read number
+max_num "${number}"
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//min number: input: 2118
+
+min_num(){
+  local num=$1
+  local min=9
+  
+  while [ $num -gt 0 ]; do
+   digit=$((num%10))
+   if [ $digit -lt $min ]; then
+    min=$digit
+   fi
+   num=$((num/10))
+  done
+  echo "Minimum digit: $min" 
+}
+
+read number
+min_num "${number}"
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//sort array: input: 5 4 3 2 1
+
+sort(){
+  local array=("$@")
+  local length=${#array[@]}
+  
+  for((i=0;i<length;i++)); do
+   for((j=i+1;j<length;j++)); do
+    if [ "${array[i]}" -gt "${array[j]}" ]; then
+     temp="${array[i]}"
+     array[i]="${array[j]}"
+     array[j]="$temp"
+    fi
+   done
+  done
+  
+  echo "Sorted array: ${array[@]}"
+}
+read -a nums
+sort "${nums[@]}"
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//factorial: without recursion: input: 5
+
+factorial(){
+  local number=$1
+  local result=1
+  
+  while [ "$number" -gt 1 ]; do
+   result=$((result*number))
+   number=$((number-1))
+  done
+  
+  echo "Factorial $result"
+}
+
+read num
+factorial "$num"
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//factorial: with recursion: input 5
+
+factorial_r(){
+
+local number=$1
+
+if [ "$number" -le 1 ]; then
+ echo 1
+else
+ prev=$(factorial_r $((number-1)))
+ echo $((number*prev))
+fi
+}
+read num
+
+echo "Factorial: $factorial$(factorial_r $num)"
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Check file permissions: input: sh file_type_per HelloWorld.sh
+
+check(){
+
+local file=$1
+
+if [ -e"$file" ]; then
+ echo "File exists."
+ echo "File type: $(file "$file")"
+ echo "Permissions: $(ls -l "$file" | awk '{print $1}')" 
+else
+ echo "File does not exist."
+fi
+}
+
+check $1
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//palindrome: input: 121
+
+check_pal(){
+read num
+local str=$num
+local length=${#str}
+local reverse=""
+
+i=$((length-1))
+while [ $i -ge 0 ]; do
+ char=$(echo "$str" | cut -c $((i+1)))
+ reverse="$reverse$char"
+ i=$((i-1))
+done
+echo "reversed str:$reverse"
+echo "original str:$str"
+
+if [ "$str" -eq "$reverse" ]; then
+ echo "The string is a palindrome."
+else
+ echo "The string is not a palindrome."
+fi
+
+}
+
+check_pal $1
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//database operations: input: make files
+1
+13
+Tanaya
+2
+13
+1
+11
+Tana
+3
+11
+TanaJ
+4
+11
+
+#!/bin/bash
+
+DATABASE="student_database.txt"
+
+# Check if database file exists, if not create it
+if [ ! -f "$DATABASE" ]; then
+    touch "$DATABASE"
+fi
+
+# Function to insert a new student record
+insert_student() {
+    echo "Enter Student ID:"
+    read student_id
+    echo "Enter Student Name:"
+    read student_name
+    echo "Enter Student Age:"
+    read student_age
+    echo "Enter Student Course:"
+    read student_course
+
+    echo "$student_id: $student_name: $student_age: $student_course" >> "$DATABASE"
+    echo "Student record inserted successfully!"
+}
+
+# Function to delete a student record
+delete_student() {
+    echo "Enter Student ID to delete:"
+    read student_id
+
+    # Delete the record matching the student ID
+    sed -i "/^$student_id:/d" "$DATABASE"
+    echo "Student record with ID $student_id deleted successfully!"
+}
+
+# Function to update a student's record
+update_student() {
+    echo "Enter Student ID to update:"
+    read student_id
+
+    # Check if student exists
+    if grep -q "^$student_id:" "$DATABASE"; then
+        echo "Enter new Student Name:"
+        read new_name
+        echo "Enter new Student Age:"
+        read new_age
+        echo "Enter new Student Course:"
+        read new_course
+
+        # Update the record for that student
+        sed -i "s/^$student_id: .*/$student_id: $new_name: $new_age: $new_course/" "$DATABASE"
+        echo "Student record updated successfully!"
+    else
+        echo "Student ID not found!"
+    fi
+}
+
+# Function to search for a student record
+search_student() {
+    echo "Enter Student ID to search:"
+    read student_id
+
+    # Search and display the student record
+    if grep -q "^$student_id:" "$DATABASE"; then
+        grep "^$student_id:" "$DATABASE"
+    else
+        echo "Student ID not found!"
+    fi
+}
+
+# Main menu
+while true; do
+    echo "------------------------------------"
+    echo "Student Database Operations"
+    echo "1. Insert Student Record"
+    echo "2. Delete Student Record"
+    echo "3. Update Student Record"
+    echo "4. Search Student Record"
+    echo "5. Exit"
+    echo "------------------------------------"
+    echo "Enter your choice: "
+    read choice
+
+    case $choice in
+        1)
+            insert_student
+            ;;
+        2)
+            delete_student
+            ;;
+        3)
+            update_student
+            ;;
+        4)
+            search_student
+            ;;
+        5)
+            echo "Exiting..."
+            exit 0
+            ;;
+        *)
+            echo "Invalid choice! Please try again."
+            ;;
+    esac
+done
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//armstrong: input: 153
+
+#!/bin/bash
+is_armstrong() {
+    num=$1
+    sum=0
+    original_num=$num
+
+    while [ $num -gt 0 ]; do
+        digit=$((num % 10))
+        sum=$((sum + digit ** 3))
+        num=$((num / 10))
+    done
+
+    if [ $sum -eq $original_num ]; then
+        echo "$original_num is an Armstrong number."
+    else
+        echo "$original_num is not an Armstrong number."
+    fi
+}
+
+read -p "Enter a number to check if it's an Armstrong number: " number
+is_armstrong $number
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//prime: input: 13
+
+#!/bin/bash
+is_prime() {
+    num=$1
+
+    if [ $num -le 1 ]; then
+        echo "$num is not a prime number."
+        return
+    fi
+
+    for ((i = 2; i * i <= num; i++)); do
+        if [ $((num % i)) -eq 0 ]; then
+            echo "$num is not a prime number."
+            return
+        fi
+    done
+
+    echo "$num is a prime number."
+}
+
+read -p "Enter a number to check if it's a prime number: " number
+is_prime $number
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Copy content character by character: 
+//input: ip.txt  
+op.txt
+
+#!/bin/bash
+# if [ $# -ne 2 ]; then
+#   echo "Usage: $0 ip.txt op.txt"
+#   exit 1
+# fi
+
+read ip
+source_file=$ip
+read op
+destination_file=$op
+
+if [ ! -f "$source_file" ]; then
+  echo "Source file does not exist. Creating $source_file..."
+  touch "$source_file"
+  echo "tanaya" > "$source_file"
+  echo "Content 'tanaya' added to the source file."
+fi
+
+if [ ! -f "$destination_file" ]; then
+  echo "Destination file $destination_file does not exist. Creating it..."
+  touch "$destination_file"
+fi
+
+while IFS= read -r line; do
+  for (( i=0; i<${#line}; i++ )); do
+    echo -n "${line:$i:1}" >> "$destination_file"
+  done
+  echo "" >> "$destination_file"
+done < "$source_file"
+
+echo "Contents copied successfully from $source_file to $destination_file."
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//System call: 
+
+//input:
+for information: 4
+1
+4
+2
+4
+3
+5
+
+for communication:3
+1
+3
+2
+5
+
+for process: 1
+1
+1
+3
+1
+5
+1
+4
+1
+2
+
+for file: 2
+1
+2
+2
+2
+3
+5
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string.h>
+#include <errno.h>
+#include <signal.h>
+#include <sys/utsname.h>
+
+void fork_example();
+void exit_example();
+void wait_example();
+void kill_example();
+void exec_example();
+
+void open_read_write_example();
+void link_unlink_example();
+void stat_example();
+
+void pipe_example();
+void fifo_example();
+
+void getpid_example();
+void getppid_example();
+void uname_example();
+
+int main() {
+    int main_choice;
+    int sub_choice;
+
+    while (1) {
+        printf("\nMenu Driven System Call Demonstration\n");
+        printf("1. Process related system calls\n");
+        printf("2. File related system calls\n");
+        printf("3. Communication related system calls\n");
+        printf("4. Information related system calls\n");
+        printf("5. Exit\n");
+        printf("Enter your choice:\n");
+        scanf("%d", &main_choice);
+
+        switch (main_choice) {
+            case 1:
+                printf("1. Fork\n2. Exit\n3. Wait\n4. Kill\n5. Exec\n");
+                printf("Enter your choice:\n");
+                scanf("%d", &sub_choice);
+                switch (sub_choice) {
+                    case 1: fork_example(); break;
+                    case 2: exit_example(); break;
+                    case 3: wait_example(); break;
+                    case 4: kill_example(); break;
+                    case 5: exec_example(); break;
+                    default: printf("Invalid choice! Please try again.\n"); break;
+                }
+                break;
+            case 2:
+                printf("1. Open, Read, Write, Close\n2. Link, Unlink\n3. Stat\n");
+                printf("Enter your choice:\n");
+                scanf("%d", &sub_choice);
+                switch (sub_choice) {
+                    case 1: open_read_write_example(); break;
+                    case 2: link_unlink_example(); break;
+                    case 3: stat_example(); break;
+                    default: printf("Invalid choice! Please try again.\n"); break;
+                }
+                break;
+            case 3:
+                printf("1. Pipe\n2. FIFO\n");
+                printf("Enter your choice:\n");
+                scanf("%d", &sub_choice);
+                switch (sub_choice) {
+                    case 1: pipe_example(); break;
+                    case 2: fifo_example(); break;
+                    default: printf("Invalid choice! Please try again.\n"); break;
+                }
+                break;
+            case 4:
+                printf("1. Get PID\n2. Get PPID\n3. Uname\n");
+                printf("Enter your choice:\n");
+                scanf("%d", &sub_choice);
+                switch (sub_choice) {
+                    case 1: getpid_example(); break;
+                    case 2: getppid_example(); break;
+                    case 3: uname_example(); break;
+                    default: printf("Invalid choice! Please try again.\n"); break;
+                }
+                break;
+            case 5:
+                printf("Exiting program.\n");
+                exit(0);
+            default:
+                printf("Invalid choice! Please try again.\n");
+                break;
+        }
+    }
+    return 0;
+}
+
+void fork_example() {
+    pid_t pid = fork();
+    if (pid == 0) {
+        printf("Child process: PID = %d\n", getpid());
+        exit(0);
+    } else if (pid > 0) {
+        printf("Parent process: PID = %d\n", getpid());
+        wait(NULL);
+    } else {
+        perror("Fork failed");
+    }
+}
+
+void exit_example() {
+    printf("This process will terminate using exit().\n");
+    exit(0);
+}
+
+void wait_example() {
+    pid_t pid = fork();
+    if (pid == 0) {
+        printf("Child process running. PID = %d\n", getpid());
+        sleep(1);
+        exit(0);
+    } else if (pid > 0) {
+        printf("Parent waiting for child to terminate.\n");
+        wait(NULL);
+        printf("Child terminated.\n");
+    } else {
+        perror("Fork failed");
+    }
+}
+
+void kill_example() {
+    pid_t pid = fork();
+    if (pid == 0) {
+        printf("Child process running. PID = %d\n", getpid());
+        while (1);
+    } else if (pid > 0) {
+        sleep(1);
+        printf("Killing child process.\n");
+        kill(pid, SIGKILL);
+        wait(NULL);
+        printf("Child process killed.\n");
+    } else {
+        perror("Fork failed");
+    }
+}
+
+void exec_example() {
+    pid_t pid = fork();
+    if (pid == 0) {
+        printf("Child process: Executing 'ls' using execl\n");
+        execl("/bin/ls", "ls", "-l", NULL);
+        perror("execl failed");
+        exit(1);
+    } else if (pid > 0) {
+        wait(NULL);
+        printf("Parent process: Child process completed\n");
+    } else {
+        perror("Fork failed");
+    }
+}
+
+void open_read_write_example() {
+    int fd;
+    char buffer[100];
+    fd = open("demo_output.txt", O_CREAT | O_RDWR, 0644);
+    if (fd == -1) {
+        perror("Error opening file");
+        return;
+    }
+    write(fd, "Hello, World!\n", 14);
+    lseek(fd, 0, SEEK_SET);
+    read(fd, buffer, sizeof(buffer) - 1);
+    buffer[99] = '\0';
+    printf("File content: %s\n", buffer);
+    close(fd);
+}
+
+void link_unlink_example() {
+    if (link("demo_output.txt", "testfile_link.txt") == 0) {
+        printf("Link created.\n");
+    } else {
+        perror("Error creating link");
+    }
+    if (unlink("testfile_link.txt") == 0) {
+        printf("Link removed.\n");
+    } else {
+        perror("Error removing link");
+    }
+}
+
+void stat_example() {
+    struct stat fileStat;
+    if (stat("demo_output.txt", &fileStat) < 0) {
+        perror("Error getting file stats");
+        return;
+    }
+    printf("Information for demo_output.txt:\n");
+    printf("File Size: %ld bytes\n", fileStat.st_size);
+    printf("Number of Links: %ld\n", fileStat.st_nlink);
+    printf("File inode: %ld\n", fileStat.st_ino);
+    printf("File Permissions: ");
+    printf((S_ISDIR(fileStat.st_mode)) ? "d" : "-");
+    printf((fileStat.st_mode & S_IRUSR) ? "r" : "-");
+    printf((fileStat.st_mode & S_IWUSR) ? "w" : "-");
+    printf((fileStat.st_mode & S_IXUSR) ? "x" : "-");
+    printf("\n");
+}
+
+void pipe_example() {
+    int pipefds[2];
+    char buffer[100];
+
+    if (pipe(pipefds) == -1) {
+        perror("Pipe creation failed");
+        exit(1);
+    }
+
+    if (fork() == 0) {
+        close(pipefds[0]);
+        write(pipefds[1], "Hello from child!\n", 18);
+        close(pipefds[1]);
+        exit(0);
+    } else {
+        close(pipefds[1]);
+
+        ssize_t bytesRead = read(pipefds[0], buffer, sizeof(buffer) - 1);
+
+        if (bytesRead == -1) {
+            perror("Failed to read from pipe");
+        } else {
+            buffer[bytesRead] = '\0';
+            printf("Parent received: %s\n", buffer);
+        }
+
+        close(pipefds[0]);
+        wait(NULL);
+    }
+}
+
+void fifo_example() {
+    char *fifo = "/tmp/myfifo";
+    mkfifo(fifo, 0666);
+
+    if (fork() == 0) {
+        int fd = open(fifo, O_WRONLY);
+        if (fd == -1) {
+            perror("Failed to open FIFO in child");
+            exit(1);
+        }
+        write(fd, "Hello via FIFO!\n", 16);
+        close(fd);
+        exit(0);
+    } else {
+        char buffer[100];
+        int fd = open(fifo, O_RDONLY);
+        if (fd == -1) {
+            perror("Failed to open FIFO in parent");
+            exit(1);
+        }
+        ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
+
+        if (bytesRead == -1) {
+            perror("Failed to read from FIFO");
+        } else {
+            buffer[bytesRead] = '\0';
+            printf("Parent received: %s\n", buffer);
+        }
+
+        close(fd);
+        wait(NULL);
+    }
+
+    unlink(fifo);
+}
+
+void getpid_example() {
+    printf("Process ID: %d\n", getpid());
+}
+
+void getppid_example() {
+    printf("Parent Process ID: %d\n", getppid());
+}
+
+void uname_example() {
+    struct utsname sysinfo;
+    if (uname(&sysinfo) == 0) {
+        printf("System information:\n");
+        printf("Sysname: %s\n", sysinfo.sysname);
+        printf("Nodename: %s\n", sysinfo.nodename);
+        printf("Release: %s\n", sysinfo.release);
+        printf("Version: %s\n", sysinfo.version);
+        printf("Machine: %s\n", sysinfo.machine);
+    } else {
+        perror("Error fetching system info");
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Reader Writer: thread mutex
+
+//input: 5
+2
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
+
+int NUMBEROFREADERS;
+int NUMBEROFWRITERS;
+
+pthread_mutex_t mutex;   
+pthread_mutex_t writeLock; 
+int readCount = 0;   
+int sharedData = 80; 
+
+void readData(int readerId) {
+    // usleep(rand() % 2000000); // Simulate time for reading
+    int delay = rand() % 20000;
+    for(int i=0;i<delay;i++);
+    printf("\nReader %d read data: %d\n", readerId, sharedData);
+}
+
+void *reader(void *arg) {
+    int readerId = *(int *)arg;
+    printf("\nReader %d is trying to access critical region\n", readerId);
+
+    pthread_mutex_lock(&mutex);
+    readCount++;
+    if (readCount == 1)
+        pthread_mutex_lock(&writeLock);
+    pthread_mutex_unlock(&mutex);
+
+    printf("\nReader %d has got access to critical section\n", readerId);
+    readData(readerId);
+
+    pthread_mutex_lock(&mutex);
+    readCount--;
+    printf("\nReader %d has left the critical section\n", readerId);
+    if (readCount == 0)
+        pthread_mutex_unlock(&writeLock);
+    pthread_mutex_unlock(&mutex);
+
+}
+
+int produceData() {
+    return rand() % 100;
+}
+
+void writeOnCriticalSection(int data, int writerId) {
+    sharedData = data;
+    // usleep(rand() % 2000000);
+    int delay1 = rand() % 20000;
+    for(int i=0;i<delay1;i++);
+    printf("\nWriter %d wrote data: %d\n", writerId, sharedData);
+}
+
+void *writer(void *arg) {
+    int writerId = *(int *)arg;
+    int dataToBeWritten = produceData();
+    printf("\nWriter %d is trying to access critical region\n", writerId);
+
+    pthread_mutex_lock(&writeLock);
+    printf("\nWriter %d has got access to critical region\n", writerId);
+
+    writeOnCriticalSection(dataToBeWritten, writerId);
+
+    printf("\nWriter %d has left the critical section\n", writerId);
+    pthread_mutex_unlock(&writeLock); 
+}
+
+int main() {
+    printf("\nEnter total Number Of Readers:");
+    scanf("%d",&NUMBEROFREADERS);
+    printf("\nEnter total Number Of Writers:");
+    scanf("%d",&NUMBEROFWRITERS);
+    srand(time(NULL));
+
+    pthread_t read[NUMBEROFREADERS], write[NUMBEROFWRITERS];
+    int readerIds[NUMBEROFREADERS], writerIds[NUMBEROFWRITERS];
+
+    pthread_mutex_init(&mutex, NULL);
+    pthread_mutex_init(&writeLock, NULL);
+
+    for (int i = 0; i < NUMBEROFREADERS; i++) {
+        readerIds[i] = i;
+        pthread_create(&read[i], NULL, reader, &readerIds[i]);
+    }
+
+    for (int i = 0; i < NUMBEROFWRITERS; i++) {
+        writerIds[i] = i;
+        pthread_create(&write[i], NULL, writer, &writerIds[i]);
+    }
+
+    for (int i = 0; i < NUMBEROFREADERS; i++) {
+        pthread_join(read[i], NULL);
+    }
+    for (int i = 0; i < NUMBEROFWRITERS; i++) {
+        pthread_join(write[i], NULL);
+    }
+
+    pthread_mutex_destroy(&mutex);
+    pthread_mutex_destroy(&writeLock);
+
+    return 0;
+}
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Reader Writer Semaphore
+
+//input: 3
+3
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+#include <time.h>
+#include <stdlib.h>
+int NUMBEROFREADERS;
+int NUMBEROFWRITERS;
+
+sem_t s;  
+sem_t wrt;    
+int readCount = 0;  
+int sharedData = 80;
+
+void readData(int readerId)
+{
+    // usleep(rand() % 2000000);
+    int delay = rand() % 20000;
+    for(int i=0;i<delay;i++);
+    printf("\nRead Data:%d from Reader Number:%d\n", sharedData,readerId);
+}
+
+void *reader(void *arg) {
+    int readerId = *(int *)arg;  
+    printf("\nReader %d is trying to access critical region\n", readerId);
+
+    sem_wait(&s);  
+    readCount++;
+    if (readCount == 1)
+        sem_wait(&wrt);  
+    sem_post(&s);  
+
+    printf("\nReader %d has got access to critical section\n",readerId);
+    readData(readerId);
+   
+
+    sem_wait(&s);
+    readCount--;
+    printf("\nReader %d has left the critical section\n",readerId);
+    if (readCount == 0)
+        sem_post(&wrt);  
+    sem_post(&s);  
+
+}
+
+int produceData()
+{
+    return rand() %100;
+}
+
+void writeOnCriticalSection(int data,int writerId)
+{
+    sharedData = data;
+    // usleep(rand() % 2000000);
+    int delay1 = rand() % 20000;
+    for(int i=0;i<delay1;i++);
+    printf("\nWriter %d has wrote. Data Now:%d\n", writerId,sharedData);
+}
+
+void *writer(void *arg) {
+    int writerId = *((int *)arg); 
+    int dataToBeWritten = produceData();
+    printf("\nWriter %d is trying to access critical region\n", writerId);
+
+    sem_wait(&wrt);     
+    printf("\nWriter %d has got access to critical region\n",writerId);
+    writeOnCriticalSection(dataToBeWritten,writerId);
+    printf("\nWriter %d has left the critical section\n",writerId);
+    sem_post(&wrt);  
+
+}
+
+int main() {
+    srand(time(NULL));
+    printf("\nEnter total number Of Readers:");
+    scanf("%d",&NUMBEROFREADERS);
+    printf("\nEnter total number of Writers:");
+    scanf("%d",&NUMBEROFWRITERS);
+
+    pthread_t read[NUMBEROFREADERS], write[NUMBEROFWRITERS];
+    int readerIds[NUMBEROFREADERS], writerIds[NUMBEROFWRITERS];
+
+    sem_init(&s, 0, 1);  
+    sem_init(&wrt, 0, 1);    
+
+    for (int i = 0; i < NUMBEROFREADERS; i++) {
+        readerIds[i] = i;
+        pthread_create(&read[i], NULL, reader, &readerIds[i]);
+    }
+
+    for (int i = 0; i < NUMBEROFWRITERS; i++) {
+        writerIds[i] = i;
+        pthread_create(&write[i], NULL, writer, &writerIds[i]);
+    }
+
+    for (int i = 0; i < NUMBEROFREADERS; i++) {
+        pthread_join(read[i], NULL);
+    }
+    for (int i = 0; i < NUMBEROFWRITERS; i++) {
+        pthread_join(write[i], NULL);
+    }
+
+    sem_destroy(&s);
+    sem_destroy(&wrt);
+
+    return 0;
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Producer consumer: mutex
+
+//input: 3
+3
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <time.h>
+
+#define BUFFER_SIZE 5  
+
+int buffer[BUFFER_SIZE];  
+int count = 0;            
+
+pthread_mutex_t mutex;
+pthread_cond_t bufferNotFull;
+pthread_cond_t bufferNotEmpty;
+
+void displayBuffer() {
+    printf("[ ");
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        if (i < count)
+            printf("%d ", buffer[i]);
+        else
+            printf("- "); 
+    }
+    printf("] ");
+    
+    if (count == 0) {
+        printf("(Buffer is empty)\n");
+    } else if (count == BUFFER_SIZE) {
+        printf("(Buffer is full)\n");
+    } else {
+        printf("\n");
+    }
+}
+
+int produceItem() {
+    return rand() % 100;
+}
+
+void addElementToBuffer(int item) {
+    buffer[count] = item;  
+    count++;
+}
+
+void* producer(void* arg) {
+    int id = *(int*)arg;
+    while (1) {
+        int item = produceItem();  
+        printf("\nProducer %d is trying to access critical section\n", id);
+
+        pthread_mutex_lock(&mutex);
+        
+        while (count == BUFFER_SIZE) {
+            printf("\nProducer %d waiting, buffer is full\n", id);
+            pthread_cond_wait(&bufferNotFull, &mutex);
+        }   
+
+        printf("\nProducer %d has got access to critical section\n", id);
+        addElementToBuffer(item);
+        printf("\nProducer %d produced item: %d\n", id, item);
+        printf("Buffer after adding element:");
+        displayBuffer();  
+
+        printf("\nProducer %d has left the critical section\n", id);
+        pthread_cond_signal(&bufferNotEmpty); 
+        pthread_mutex_unlock(&mutex);
+
+        usleep(rand() % 1000000);
+        // int delay = rand() % 1000000;
+        // for(int i=0;i<delay;i++);
+    }
+}
+
+int removeElementFromBuffer() {
+    count--;
+    int item = buffer[count];  
+    return item;
+}
+
+void consumeItem(int item, int id) {
+    printf("\nConsumer %d consumed item: %d\n", id, item);
+}
+
+void* consumer(void* arg) {
+    int id = *(int*)arg;
+    while (1) {
+        printf("\nConsumer %d is trying to access critical section\n", id);
+
+        pthread_mutex_lock(&mutex);
+        
+        while (count == 0) {
+            printf("\nConsumer %d waiting, buffer is empty\n", id);
+            pthread_cond_wait(&bufferNotEmpty, &mutex);
+        }
+
+        printf("\nConsumer %d has got access to critical section\n", id);
+        
+        int item = removeElementFromBuffer();  
+        printf("Buffer after removing element:");
+        displayBuffer();  
+
+        printf("\nConsumer %d has left the critical section\n", id);
+        pthread_cond_signal(&bufferNotFull);  
+        pthread_mutex_unlock(&mutex); 
+        
+        consumeItem(item, id);
+
+        usleep(rand() % 1000000);
+    }
+}
+
+int main() {
+    srand(time(NULL));
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&bufferNotFull, NULL);
+    pthread_cond_init(&bufferNotEmpty, NULL);
+
+    int numProducers, numConsumers;
+    printf("Enter the number of producers:\n");
+    scanf("%d", &numProducers);
+    printf("Enter the number of consumers:\n");
+    scanf("%d", &numConsumers);
+
+    pthread_t prod_threads[numProducers];
+    pthread_t cons_threads[numConsumers];
+    int prod_ids[numProducers];
+    int cons_ids[numConsumers];
+
+    for (int i = 0; i < numProducers; i++) {
+        prod_ids[i] = i + 1;
+        pthread_create(&prod_threads[i], NULL, producer, &prod_ids[i]);
+    }
+
+    for (int i = 0; i < numConsumers; i++) {
+        cons_ids[i] = i + 1;
+        pthread_create(&cons_threads[i], NULL, consumer, &cons_ids[i]);
+    }
+
+    for (int i = 0; i < numProducers; i++) {
+        pthread_join(prod_threads[i], NULL);
+    }
+
+    for (int i = 0; i < numConsumers; i++) {
+        pthread_join(cons_threads[i], NULL);
+    }
+
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&bufferNotFull);
+    pthread_cond_destroy(&bufferNotEmpty);
+
+    return 0;
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//producer consumer semaphore
+
+//input: 3
+3
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+#include <time.h>
+
+#define BUFFER_SIZE 5  
+
+int buffer[BUFFER_SIZE];  
+int count = 0;            
+
+sem_t empty;
+sem_t full;   
+sem_t s;  
+
+void displayBuffer() {
+    printf("[ ");
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        if (i < count)
+            printf("%d ", buffer[i]);
+        else
+            printf("- "); 
+    }
+    printf("] ");
+    
+    if (count == 0) {
+        printf("(Buffer is empty)\n");
+    } else if (count == BUFFER_SIZE) {
+        printf("(Buffer is full)\n");
+    } else {
+        printf("\n");
+    }
+}
+
+int produceItem() {
+    return rand() % 100;
+}
+
+void addElementToBuffer(int item) {
+    buffer[count] = item;  
+    printf("\nElement %d has been added to buffer\n", item);
+    count++;
+}
+
+void* producer(void* arg) {
+    int id = *(int*)arg;
+    while (1) {
+        int item = produceItem();  
+        printf("\nProducer %d is trying to access critical section\n", id);
+
+        sem_wait(&empty); 
+        sem_wait(&s);  
+
+        printf("\nProducer %d has got access to critical section\n", id);
+        addElementToBuffer(item);
+        printf("\nProducer %d produced item: %d\n", id, item);
+        printf("Buffer after adding element:");
+        displayBuffer();  
+
+        printf("\nProducer %d has left the critical section\n", id);
+        sem_post(&full);
+        sem_post(&s);  
+
+        usleep(rand() % 1000000);
+    }
+}
+
+int removeElementFromBuffer() {
+    count--;
+    int item = buffer[count];  
+    return item;
+}
+
+void consumeItem(int item, int id) {
+    printf("\nConsumer %d consumed item: %d\n", id, item);
+}
+
+void* consumer(void* arg) {
+    int id = *(int*)arg;
+    while (1) {
+        printf("\nConsumer %d is trying to access critical section\n", id);
+
+        sem_wait(&full);  
+        sem_wait(&s);  
+
+        printf("\nConsumer %d has got access to critical section\n", id);
+        
+        int item = removeElementFromBuffer();  
+        printf("Buffer after removing element:");
+        displayBuffer();  
+
+        printf("\nConsumer %d has left the critical section\n", id);
+        sem_post(&empty);  
+        sem_post(&s);  
+        consumeItem(item, id);
+
+        usleep(rand() % 1000000);
+    }
+}
+
+int main() {
+    srand(time(NULL));
+    int numProducers, numConsumers;
+    printf("Enter the number of producers:\n");
+    scanf("%d", &numProducers);
+    printf("Enter the number of consumers:\n");
+    scanf("%d", &numConsumers);
+
+    pthread_t prod_threads[numProducers];
+    pthread_t cons_threads[numConsumers];
+    int prod_ids[numProducers];
+    int cons_ids[numConsumers];
+
+    sem_init(&empty, 0, BUFFER_SIZE);  
+    sem_init(&full, 0, 0); 
+    sem_init(&s, 0, 1);
+
+    for (int i = 0; i < numProducers; i++) {
+        prod_ids[i] = i + 1;
+        pthread_create(&prod_threads[i], NULL, producer, &prod_ids[i]);
+    }
+
+    for (int i = 0; i < numConsumers; i++) {
+        cons_ids[i] = i + 1;
+        pthread_create(&cons_threads[i], NULL, consumer, &cons_ids[i]);
+    }
+
+    for (int i = 0; i < numProducers; i++) {
+        pthread_join(prod_threads[i], NULL);
+    }
+
+    for (int i = 0; i < numConsumers; i++) {
+        pthread_join(cons_threads[i], NULL);
+    }
+
+    sem_destroy(&empty);
+    sem_destroy(&full);
+    sem_destroy(&s);
+
+    return 0;
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Dining philosopher: mutex
+
+//input: 4
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <time.h>
+
+#define N 5
+#define THINKING 0
+#define HUNGRY 1
+#define EATING 2
+
+pthread_mutex_t mutex;
+pthread_cond_t cond[N];
+int states[N];
+
+void thinking(int philNumber)
+{
+    states[philNumber] = THINKING;
+    printf("\nPhilosopher %d is thinking.\n", philNumber);
+    usleep(rand() % 1000000);
+}
+
+void test(int philNumber)
+{
+    if (states[philNumber] == HUNGRY &&
+        states[(philNumber + 1) % N] != EATING &&
+        states[(philNumber - 1 + N) % N] != EATING)
+    {
+        states[philNumber] = EATING;
+        printf("\nPhilosopher %d starts eating.\n", philNumber);
+        pthread_cond_signal(&cond[philNumber]);
+    }
+}
+
+void takeForks(int philNumber)
+{
+    pthread_mutex_lock(&mutex);
+    states[philNumber] = HUNGRY;
+    printf("\nPhilosopher %d is hungry.\n", philNumber);
+    test(philNumber);
+    pthread_mutex_unlock(&mutex);
+}
+
+void eating(int philNumber)
+{
+    pthread_mutex_lock(&mutex);
+    while (states[philNumber] != EATING)
+        pthread_cond_wait(&cond[philNumber], &mutex);
+    printf("\nPhilosopher %d is eating.\n", philNumber);
+    usleep(rand() % 1000000);
+    pthread_mutex_unlock(&mutex);
+}
+
+void putForks(int philNumber)
+{
+    pthread_mutex_lock(&mutex);
+    states[philNumber] = THINKING;
+    printf("\nPhilosopher %d has finished eating.\n", philNumber);
+    test((philNumber + 1) % N);
+    test((philNumber - 1 + N) % N);
+    pthread_mutex_unlock(&mutex);
+}
+
+void *philosopher(void *args)
+{
+    int philNumber = *(int *)args;
+    thinking(philNumber);
+    takeForks(philNumber);
+    eating(philNumber);
+    putForks(philNumber);
+}
+
+int main()
+{
+    srand(time(NULL));
+    pthread_t threads[N];
+    int philNumber[N];
+
+    pthread_mutex_init(&mutex, NULL);
+    for (int i = 0; i < N; i++) {
+        pthread_cond_init(&cond[i], NULL);
+    }
+
+    for (int i = 0; i < N; i++)
+    {
+        philNumber[i] = i;
+        pthread_create(&threads[i], NULL, philosopher, &philNumber[i]);
+    }
+
+    for (int i = 0; i < N; i++)
+    {
+        pthread_join(threads[i], NULL);
+    }
+
+    for (int i = 0; i < N; i++) {
+        pthread_cond_destroy(&cond[i]);
+    }
+    pthread_mutex_destroy(&mutex);
+    return 0;
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Dining Philosopher: semaphore
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<pthread.h>
+#include<semaphore.h>
+#include<unistd.h>
+#include<time.h>
+#define N 5
+#define THINKING 0
+#define HUNGRY 1
+#define EATING 2
+
+sem_t s, semaphores[N];
+int states[N];
+
+void thinking(int philNumber)
+{
+    states[philNumber] = THINKING;
+    printf("\nPhilosopher %d is thinking.\n", philNumber);
+    usleep(rand() % 2000000);
+}
+
+void test(int philNumber)
+{
+    if (states[philNumber] == HUNGRY && states[(philNumber + 1) % N] != EATING && states[(philNumber - 1 + N) % N] != EATING) {
+        states[philNumber] = EATING;
+        sem_post(&semaphores[philNumber]);
+    }
+}
+
+void takeForks(int philNumber)
+{
+    sem_wait(&s);
+    states[philNumber] = HUNGRY;
+    printf("\nPhilosopher %d is hungry.\n", philNumber);
+    test(philNumber);
+    sem_post(&s);
+    sem_wait(&semaphores[philNumber]);
+}
+
+void eating(int philNumber)
+{
+    states[philNumber] = EATING;
+    printf("\nPhilosopher %d is eating.\n", philNumber);
+    usleep(rand() % 2000000);
+}
+
+void putForks(int philNumber)
+{
+    sem_wait(&s); 
+    states[philNumber] = THINKING;
+    printf("\nPhilosopher %d has done eating.\n", philNumber);
+    test((philNumber + 1) % N);
+    test((philNumber - 1 + N) % N);
+    sem_post(&s); 
+}
+
+void *philosopher(void *args)
+{
+    int philNumber = *(int *)args;
+    thinking(philNumber);
+    takeForks(philNumber);
+    eating(philNumber);
+    putForks(philNumber);
+}
+
+int main()
+{
+    srand(time(NULL));
+    pthread_t threads[N];
+    int philNumber[N];
+
+    sem_init(&s, 0, N - 1);
+    for (int i = 0; i < N; i++) {
+        philNumber[i] = i;
+        sem_init(&semaphores[i], 0, 0);
+    }
+
+    for (int i = 0; i < N; i++) {
+        pthread_create(&threads[i], NULL, philosopher, &philNumber[i]);
+    }
+
+    for (int i = 0; i < N; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    sem_destroy(&s);
+    for (int i = 0; i < N; i++)
+        sem_destroy(&semaphores[i]);
+
+    return 0;
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//FCFS: process
+
+import java.util.Scanner;
+
+class FCFS {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter number of processes: ");
+        int n = scanner.nextInt();
+        int[] arrivalTime = new int[n];
+        int[] burstTime = new int[n];
+        int[] finishTime = new int[n];
+        int[] waitingTime = new int[n];
+        int[] turnaroundTime = new int[n];
+
+        double totalWaitingTime = 0;
+        double totalTurnaroundTime = 0;
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter arrival time for process " + (i + 1) + ": ");
+            arrivalTime[i] = scanner.nextInt();
+            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+            burstTime[i] = scanner.nextInt();
+        }
+
+        int currentTime = 0;
+        for (int i = 0; i < n; i++) {
+            if (currentTime < arrivalTime[i]) {
+                currentTime = arrivalTime[i];
+            }
+            finishTime[i] = currentTime + burstTime[i];
+            turnaroundTime[i] = finishTime[i] - arrivalTime[i];
+            waitingTime[i] = turnaroundTime[i] - burstTime[i];
+            currentTime = finishTime[i];
+
+            totalWaitingTime += waitingTime[i];
+            totalTurnaroundTime += turnaroundTime[i];
+        }
+
+        double avgWaitingTime = totalWaitingTime / n;
+        double avgTurnaroundTime = totalTurnaroundTime / n;
+
+        System.out.println("\nProcess | Arrival Time | Burst Time | Finish Time | Turnaround Time | Waiting Time");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("%7d | %12d | %10d | %11d | %14d | %12d\n",
+                    (i + 1), arrivalTime[i], burstTime[i], finishTime[i], turnaroundTime[i], waitingTime[i]);
+        }
+
+        System.out.printf("\nAverage Waiting Time: %.2f\n", avgWaitingTime);
+        System.out.printf("Average Turnaround Time: %.2f\n", avgTurnaroundTime);
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//SJF (preemptive)
+
+import java.util.Scanner;
+
+class PreemptiveSJF {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter number of processes: ");
+        int n = scanner.nextInt();
+        int[] arrivalTime = new int[n];
+        int[] burstTime = new int[n];
+        int[] remainingTime = new int[n];
+        int[] finishTime = new int[n];
+        int[] waitingTime = new int[n];
+        int[] turnaroundTime = new int[n];
+        boolean[] isComplete = new boolean[n];
+
+        double totalWaitingTime = 0;
+        double totalTurnaroundTime = 0;
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter arrival time for process " + (i + 1) + ": ");
+            arrivalTime[i] = scanner.nextInt();
+            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+            burstTime[i] = scanner.nextInt();
+            remainingTime[i] = burstTime[i];
+        }
+
+        int currentTime = 0, completed = 0, minIndex = -1;
+        while (completed < n) {
+            int minBurst = Integer.MAX_VALUE;
+            for (int i = 0; i < n; i++) {
+                if (arrivalTime[i] <= currentTime && !isComplete[i] && remainingTime[i] < minBurst) {
+                    minBurst = remainingTime[i];
+                    minIndex = i;
+                }
+            }
+
+            if (minIndex == -1) {
+                currentTime++;
+            } else {
+                remainingTime[minIndex]--;
+                if (remainingTime[minIndex] == 0) {
+                    isComplete[minIndex] = true;
+                    completed++;
+                    finishTime[minIndex] = currentTime + 1;
+                    turnaroundTime[minIndex] = finishTime[minIndex] - arrivalTime[minIndex];
+                    waitingTime[minIndex] = turnaroundTime[minIndex] - burstTime[minIndex];
+
+                    totalTurnaroundTime += turnaroundTime[minIndex];
+                    totalWaitingTime += waitingTime[minIndex];
+                }
+                currentTime++;
+            }
+        }
+
+        double avgWaitingTime = totalWaitingTime / n;
+        double avgTurnaroundTime = totalTurnaroundTime / n;
+
+        System.out.println("\nProcess | Arrival Time | Burst Time | Finish Time | Turnaround Time | Waiting Time");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("%7d | %12d | %10d | %11d | %14d | %12d\n",
+                    (i + 1), arrivalTime[i], burstTime[i], finishTime[i], turnaroundTime[i], waitingTime[i]);
+        }
+
+        System.out.printf("\nAverage Waiting Time: %.2f\n", avgWaitingTime);
+        System.out.printf("Average Turnaround Time: %.2f\n", avgTurnaroundTime);
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//SJF (non-preemptive)
+
+import java.util.Scanner;
+
+class NonPreemptiveSJF {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter number of processes: ");
+        int n = scanner.nextInt();
+        int[] arrivalTime = new int[n];
+        int[] burstTime = new int[n];
+        int[] finishTime = new int[n];
+        int[] waitingTime = new int[n];
+        int[] turnaroundTime = new int[n];
+        boolean[] isComplete = new boolean[n];
+
+        double totalWaitingTime = 0;
+        double totalTurnaroundTime = 0;
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter arrival time for process " + (i + 1) + ": ");
+            arrivalTime[i] = scanner.nextInt();
+            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+            burstTime[i] = scanner.nextInt();
+        }
+
+        int currentTime = 0, completed = 0;
+        while (completed < n) {
+            int minIndex = -1;
+            int minBurst = Integer.MAX_VALUE;
+
+            for (int i = 0; i < n; i++) {
+                if (arrivalTime[i] <= currentTime && !isComplete[i] && burstTime[i] < minBurst) {
+                    minBurst = burstTime[i];
+                    minIndex = i;
+                }
+            }
+
+            if (minIndex == -1) {
+                currentTime++;
+            } else {
+                currentTime += burstTime[minIndex];
+                finishTime[minIndex] = currentTime;
+                turnaroundTime[minIndex] = finishTime[minIndex] - arrivalTime[minIndex];
+                waitingTime[minIndex] = turnaroundTime[minIndex] - burstTime[minIndex];
+
+                totalTurnaroundTime += turnaroundTime[minIndex];
+                totalWaitingTime += waitingTime[minIndex];
+                isComplete[minIndex] = true;
+                completed++;
+            }
+        }
+
+        double avgWaitingTime = totalWaitingTime / n;
+        double avgTurnaroundTime = totalTurnaroundTime / n;
+
+        System.out.println("\nProcess | Arrival Time | Burst Time | Finish Time | Turnaround Time | Waiting Time");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("%7d | %12d | %10d | %11d | %14d | %12d\n",
+                    (i + 1), arrivalTime[i], burstTime[i], finishTime[i], turnaroundTime[i], waitingTime[i]);
+        }
+
+        System.out.printf("\nAverage Waiting Time: %.2f\n", avgWaitingTime);
+        System.out.printf("Average Turnaround Time: %.2f\n", avgTurnaroundTime);
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//Priority: preemptive
+
+import java.util.Scanner;
+import java.util.ArrayList;
+
+class PreemptivePriority {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter number of processes: ");
+        int n = scanner.nextInt();
+        int[] arrivalTime = new int[n];
+        int[] burstTime = new int[n];
+        int[] priority = new int[n];
+        int[] remainingTime = new int[n];
+        int[] finishTime = new int[n];
+        int[] waitingTime = new int[n];
+        int[] turnaroundTime = new int[n];
+
+        double totalWaitingTime = 0;
+        double totalTurnaroundTime = 0;
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter arrival time for process " + (i + 1) + ": ");
+            arrivalTime[i] = scanner.nextInt();
+            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+            burstTime[i] = scanner.nextInt();
+            remainingTime[i] = burstTime[i];
+            System.out.print("Enter priority for process " + (i + 1) + ": ");
+            priority[i] = scanner.nextInt();
+        }
+
+        int currentTime = 0, completed = 0;
+        ArrayList<Integer> processSequence = new ArrayList<>();
+
+        while (completed < n) {
+            int minPriority = Integer.MAX_VALUE;
+            int minIndex = -1;
+
+            for (int i = 0; i < n; i++) {
+                if (arrivalTime[i] <= currentTime && remainingTime[i] > 0 && priority[i] < minPriority) {
+                    minPriority = priority[i];
+                    minIndex = i;
+                }
+            }
+
+            if (minIndex == -1) {
+                currentTime++;
+            } else {
+                processSequence.add(minIndex + 1);
+                remainingTime[minIndex]--;
+                currentTime++;
+
+                if (remainingTime[minIndex] == 0) {
+                    completed++;
+                    finishTime[minIndex] = currentTime;
+                    turnaroundTime[minIndex] = finishTime[minIndex] - arrivalTime[minIndex];
+                    waitingTime[minIndex] = turnaroundTime[minIndex] - burstTime[minIndex];
+
+                    totalTurnaroundTime += turnaroundTime[minIndex];
+                    totalWaitingTime += waitingTime[minIndex];
+                }
+            }
+        }
+
+        double avgWaitingTime = totalWaitingTime / n;
+        double avgTurnaroundTime = totalTurnaroundTime / n;
+
+        System.out.println("\nProcess | Arrival Time | Burst Time | Priority | Finish Time | Turnaround Time | Waiting Time");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("%7d | %12d | %10d | %8d | %11d | %14d | %12d\n",
+                    (i + 1), arrivalTime[i], burstTime[i], priority[i], finishTime[i], turnaroundTime[i], waitingTime[i]);
+        }
+
+        System.out.printf("\nAverage Waiting Time: %.2f\n", avgWaitingTime);
+        System.out.printf("Average Turnaround Time: %.2f\n", avgTurnaroundTime);
+
+        System.out.println("\nProcess Execution Sequence: " + processSequence);
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Priority: non-preemptive
+
+import java.util.Scanner;
+
+class NonPreemptivePriority {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter number of processes: ");
+        int n = scanner.nextInt();
+        int[] arrivalTime = new int[n];
+        int[] burstTime = new int[n];
+        int[] priority = new int[n];
+        int[] remainingTime = new int[n];
+        int[] finishTime = new int[n];
+        int[] waitingTime = new int[n];
+        int[] turnaroundTime = new int[n];
+
+        double totalWaitingTime = 0;
+        double totalTurnaroundTime = 0;
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter arrival time for process " + (i + 1) + ": ");
+            arrivalTime[i] = scanner.nextInt();
+            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+            burstTime[i] = scanner.nextInt();
+            remainingTime[i] = burstTime[i];
+            System.out.print("Enter priority for process " + (i + 1) + ": ");
+            priority[i] = scanner.nextInt();
+        }
+
+        int currentTime = 0, completed = 0;
+        boolean[] isComplete = new boolean[n];
+        StringBuilder processSequence = new StringBuilder();
+
+        while (completed < n) {
+            int minPriority = Integer.MAX_VALUE;
+            int minIndex = -1;
+
+            for (int i = 0; i < n; i++) {
+                if (arrivalTime[i] <= currentTime && !isComplete[i] && priority[i] < minPriority) {
+                    minPriority = priority[i];
+                    minIndex = i;
+                }
+            }
+
+            if (minIndex == -1) {
+                currentTime++;
+            } else {
+
+                processSequence.append("P").append(minIndex + 1).append(" ");
+                currentTime += burstTime[minIndex];
+                finishTime[minIndex] = currentTime;
+                turnaroundTime[minIndex] = finishTime[minIndex] - arrivalTime[minIndex];
+                waitingTime[minIndex] = turnaroundTime[minIndex] - burstTime[minIndex];
+
+                totalTurnaroundTime += turnaroundTime[minIndex];
+                totalWaitingTime += waitingTime[minIndex];
+                isComplete[minIndex] = true;
+                completed++;
+            }
+        }
+
+        double avgWaitingTime = totalWaitingTime / n;
+        double avgTurnaroundTime = totalTurnaroundTime / n;
+
+        System.out.println("\nProcess | Arrival Time | Burst Time | Priority | Finish Time | Turnaround Time | Waiting Time");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("%7d | %12d | %10d | %8d | %11d | %14d | %12d\n",
+                    (i + 1), arrivalTime[i], burstTime[i], priority[i], finishTime[i], turnaroundTime[i], waitingTime[i]);
+        }
+
+        System.out.printf("\nAverage Waiting Time: %.2f\n", avgWaitingTime);
+        System.out.printf("Average Turnaround Time: %.2f\n", avgTurnaroundTime);
+
+        System.out.println("\nProcess Execution Sequence: " + processSequence.toString().trim());
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Round Robin
+
+import java.util.Scanner;
+import java.util.ArrayList;
+
+class RoundRobin {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter number of processes: ");
+        int n = scanner.nextInt();
+        int[] arrivalTime = new int[n];
+        int[] burstTime = new int[n];
+        int[] remainingTime = new int[n];
+        int[] finishTime = new int[n];
+        int[] waitingTime = new int[n];
+        int[] turnaroundTime = new int[n];
+
+        double totalWaitingTime = 0;
+        double totalTurnaroundTime = 0;
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter arrival time for process " + (i + 1) + ": ");
+            arrivalTime[i] = scanner.nextInt();
+            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+            burstTime[i] = scanner.nextInt();
+            remainingTime[i] = burstTime[i];
+        }
+
+        System.out.print("Enter time quantum: ");
+        int quantum = scanner.nextInt();
+
+        int currentTime = 0, completed = 0;
+        boolean isComplete[] = new boolean[n];
+        ArrayList<Integer> processSequence = new ArrayList<>();
+
+        while (completed < n) {
+            boolean didProcess = false;
+            for (int i = 0; i < n; i++) {
+                if (arrivalTime[i] <= currentTime && remainingTime[i] > 0) {
+                    if (remainingTime[i] > quantum) {
+                        currentTime += quantum;
+                        remainingTime[i] -= quantum;
+                    } else {
+                        currentTime += remainingTime[i];
+                        finishTime[i] = currentTime;
+                        turnaroundTime[i] = finishTime[i] - arrivalTime[i];
+                        waitingTime[i] = turnaroundTime[i] - burstTime[i];
+                        remainingTime[i] = 0;
+                        completed++;
+
+                        totalTurnaroundTime += turnaroundTime[i];
+                        totalWaitingTime += waitingTime[i];
+                    }
+                    processSequence.add(i + 1);
+                    didProcess = true;
+                }
+            }
+            if (!didProcess) {
+                currentTime++;
+            }
+        }
+
+        double avgWaitingTime = totalWaitingTime / n;
+        double avgTurnaroundTime = totalTurnaroundTime / n;
+
+        System.out.println("\nProcess | Arrival Time | Burst Time | Finish Time | Turnaround Time | Waiting Time");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("%7d | %12d | %10d | %11d | %14d | %12d\n",
+                    (i + 1), arrivalTime[i], burstTime[i], finishTime[i], turnaroundTime[i], waitingTime[i]);
+        }
+
+        System.out.printf("\nAverage Waiting Time: %.2f\n", avgWaitingTime);
+        System.out.printf("Average Turnaround Time: %.2f\n", avgTurnaroundTime);
+
+        System.out.println("\nProcess Execution Sequence: " + processSequence);
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Bankers
+
+import java.util.Scanner;
+
+public class Bankers {
+    static final int NUMBER_OF_PROCESSES = 5;
+    static final int NUMBER_OF_RESOURCES = 3;
+
+    static void calculateAvailable(int[] total, int[][] allocation, int[] available) {
+        for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
+            available[i] = total[i];
+            for (int j = 0; j < NUMBER_OF_PROCESSES; j++) {
+                available[i] -= allocation[j][i];
+            }
+        }
+    }
+
+    static void calculateNeed(int[][] maximum, int[][] allocation, int[][] need) {
+        for (int i = 0; i < NUMBER_OF_PROCESSES; i++) {
+            for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+                need[i][j] = maximum[i][j] - allocation[i][j];
+            }
+        }
+    }
+
+    static boolean canAllocate(int process, int[][] need, int[] available) {
+        for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
+            if (need[process][i] > available[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static void printRemainingNeed(int[][] need) {
+        System.out.println("\nRemaining need for each process:");
+        for (int i = 0; i < NUMBER_OF_PROCESSES; i++) {
+            System.out.printf("Process P%d: %d %d %d\n", i, need[i][0], need[i][1], need[i][2]);
+        }
+    }
+
+    static boolean bankersAlgorithm(int[][] allocation, int[][] maximum, int[] available, int[] safeSequence) {
+        int[][] need = new int[NUMBER_OF_PROCESSES][NUMBER_OF_RESOURCES];
+        boolean[] finished = new boolean[NUMBER_OF_PROCESSES];
+        calculateNeed(maximum, allocation, need);
+
+        printRemainingNeed(need);
+
+        int count = 0;
+        int currentIndex = 0;
+
+        System.out.println("\nStep-by-step allocation process:");
+        while (count < NUMBER_OF_PROCESSES) {
+            boolean found = false;
+
+            for (int i = 0; i < NUMBER_OF_PROCESSES; i++) {
+                int processIndex = (currentIndex + i) % NUMBER_OF_PROCESSES;
+
+                if (!finished[processIndex] && canAllocate(processIndex, need, available)) {
+                    System.out.printf("Allocating resources to Process P%d (Need: %d %d %d, Available: %d %d %d)\n",
+                            processIndex, need[processIndex][0], need[processIndex][1], need[processIndex][2],
+                            available[0], available[1], available[2]);
+
+                    for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+                        available[j] += allocation[processIndex][j];
+                    }
+
+                    System.out.printf("Process P%d has completed. Updated available resources: %d %d %d\n",
+                            processIndex, available[0], available[1], available[2]);
+                    System.out.println();
+                    safeSequence[count++] = processIndex;
+                    finished[processIndex] = true;
+                    found = true;
+
+                    currentIndex = (processIndex + 1) % NUMBER_OF_PROCESSES;
+                    break;
+                }
+            }
+
+            if (!found) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int[] total = new int[NUMBER_OF_RESOURCES];
+        int[][] allocation = new int[NUMBER_OF_PROCESSES][NUMBER_OF_RESOURCES];
+        int[][] maximum = new int[NUMBER_OF_PROCESSES][NUMBER_OF_RESOURCES];
+        int[] available = new int[NUMBER_OF_RESOURCES];
+        int[] safeSequence = new int[NUMBER_OF_PROCESSES];
+
+        System.out.print("Enter total instances of resources A, B, C (separated by spaces): ");
+        for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
+            total[i] = scanner.nextInt();
+        }
+
+        System.out.println("Enter the allocated resources for each process (5 processes, 3 resources A, B, C each):");
+        for (int i = 0; i < NUMBER_OF_PROCESSES; i++) {
+            System.out.print("Process P" + i + ": ");
+            for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+                allocation[i][j] = scanner.nextInt();
+            }
+        }
+
+        System.out.println("Enter the maximum resources required for each process (5 processes, 3 resources A, B, C each):");
+        for (int i = 0; i < NUMBER_OF_PROCESSES; i++) {
+            System.out.print("Process P" + i + ": ");
+            for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+                maximum[i][j] = scanner.nextInt();
+            }
+        }
+
+        calculateAvailable(total, allocation, available);
+
+        System.out.printf("Available resources: A = %d, B = %d, C = %d\n", available[0], available[1], available[2]);
+
+        if (bankersAlgorithm(allocation, maximum, available, safeSequence)) {
+            System.out.println("\nThe system is in a safe state.\nSafe sequence: ");
+            for (int i = 0; i < NUMBER_OF_PROCESSES; i++) {
+                System.out.print("P" + safeSequence[i]);
+                if (i < NUMBER_OF_PROCESSES - 1) {
+                    System.out.print(" -> ");
+                }
+            }
+            System.out.println();
+        } else {
+            System.out.println("The system is not in a safe state.");
+        }
+
+        scanner.close();
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+// fifo page replacement: 
+
+import java.util.Arrays;
+import java.util.Scanner;
+
+class FIFOPageReplacement{
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int[] pages;
+        System.out.print("Enter length of reference string: ");
+        int len = sc.nextInt();
+        pages = new int[len];
+        System.out.print("Enter the reference string space separated: ");
+        for(int i=0;i<len;i++) {
+            pages[i]=sc.nextInt();
+        }
+        System.out.println(Arrays.toString(pages));
+        System.out.print("Enter number of frames: ");
+        int frames = sc.nextInt();
+
+        int page_fault = check(pages, len, frames);
+        System.out.println("----------------------------------------");
+        System.out.println("Total page faults: " + page_fault);
+        System.out.println("----------------------------------------");
+    }
+
+    static int check(int[] pages, int len, int frames){
+        int pf=0;
+        int next_frame=0;
+        int[] frame = new int[100];
+
+        for(int j=0;j<frames;j++)
+            frame[j]=-1;
+       // System.out.println(Arrays.toString(frame));
+
+        for(int i=0;i<len;i++)
+        {
+            int found =0;
+            System.out.print("Current frames: ");
+            for (int k = 0; k < frames; k++)
+            {
+                if(frame[k]!=-1)
+                    System.out.print(frame[k] + " ");
+                else
+                    System.out.print("_" + " ");
+            }
+            System.out.println();
+            System.out.println("Current page request for page: " + pages[i]);
+
+            for(int a = 0;a<frames;a++)
+            {
+                if(frame[a]==pages[i])
+                {
+                    found = 1;
+                    System.out.println("Page found at frame " + (a + 1));
+                    break;
+                }
+            }
+
+            if(found==0){
+                System.out.println("Page fault. Replacing page");
+                frame[next_frame] = pages[i];
+                next_frame= (next_frame + 1)%frames;
+                pf++;
+            }
+        }
+        return pf;
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//LRU page replacement
+
+import java.util.Scanner;
+public class LRUPageReplacement {
+    static final int MAX_PAGES = 100;
+    static final int MAX_FRAMES = 10;
+
+    public static void main(String[] args) {
+        int[] pages = new int[MAX_PAGES];
+        int n, frames;
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the number of pages in the reference string: ");
+        n = scanner.nextInt();
+        System.out.print("Enter the reference string (space-separated): ");
+        for (int i = 0; i < n; i++) {
+            pages[i] = scanner.nextInt();
+        }
+        System.out.print("Enter the number of frames: ");
+        frames = scanner.nextInt();
+
+        int lruFaults = lru(pages, n, frames);
+        System.out.println("Number of page faults using LRU: " + lruFaults);
+
+        scanner.close();
+    }
+
+    public static int lru(int[] pages, int n, int frames) {
+        int pageFaults = 0;
+        int[] frame = new int[MAX_FRAMES];
+        int[] lastUsed = new int[MAX_FRAMES];
+        int currentTime = 0;
+
+        for (int j = 0; j < frames; j++) {
+            frame[j] = -1;
+            lastUsed[j] = -1;
+        }
+
+        for (int i = 0; i < n; i++) {
+            boolean found = false;
+
+            System.out.print("\nCurrent Frames: ");
+            for (int j = 0; j < frames; j++) {
+                if (frame[j] != -1)
+                    System.out.print(frame[j] + " ");
+                else
+                    System.out.print("- ");
+            }
+            System.out.println("\nPage request: " + pages[i]);
+
+            for (int j = 0; j < frames; j++) {
+                if (frame[j] == pages[i]) {
+                    found = true;
+                    lastUsed[j] = currentTime;
+                    System.out.println("Page " + pages[i] + " found in frame " + j + " (HIT).");
+                    break;
+                }
+            }
+
+            if (!found) {
+                int lruIndex = 0;
+                for (int j = 1; j < frames; j++) {
+                    if (lastUsed[j] < lastUsed[lruIndex]) {
+                        lruIndex = j;
+                    }
+                }
+                System.out.println("Page " + pages[i] + " caused a page fault (MISS). Replacing page " + frame[lruIndex] + " in frame " + lruIndex + ".");
+                frame[lruIndex] = pages[i];
+                lastUsed[lruIndex] = currentTime;
+                pageFaults++;
+            }
+
+            currentTime++;
+        }
+        return pageFaults;
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Optimal
+
+import java.util.Scanner;
+
+public class OptimalPageReplacement {
+
+    static final int MAX_PAGES = 100;
+    static final int MAX_FRAMES = 10;
+
+    public static void main(String[] args) {
+        int[] pages = new int[MAX_PAGES];
+        int n, frames;
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the number of pages in the reference string: ");
+        n = scanner.nextInt();
+        System.out.print("Enter the reference string (space-separated): ");
+        for (int i = 0; i < n; i++) {
+            pages[i] = scanner.nextInt();
+        }
+        System.out.print("Enter the number of frames: ");
+        frames = scanner.nextInt();
+
+        int optimalFaults = optimal(pages, n, frames);
+        System.out.println("Number of page faults using Optimal: " + optimalFaults);
+
+        scanner.close();
+    }
+
+    public static int optimal(int[] pages, int n, int frames) {
+        int pageFaults = 0;
+        int[] frame = new int[MAX_FRAMES];
+        for (int j = 0; j < frames; j++) {
+            frame[j] = -1;
+        }
+
+        for (int i = 0; i < n; i++) {
+            boolean found = false;
+
+            System.out.print("\nCurrent Frames: ");
+            for (int j = 0; j < frames; j++) {
+                if (frame[j] != -1)
+                    System.out.print(frame[j] + " ");
+                else
+                    System.out.print("- ");
+            }
+            System.out.println("\nPage request: " + pages[i]);
+
+            for (int j = 0; j < frames; j++) {
+                if (frame[j] == pages[i]) {
+                    found = true;
+                    System.out.println("Page " + pages[i] + " found in frame " + j + " (HIT).");
+                    break;
+                }
+            }
+
+            if (!found) {
+                int emptyFrame = -1;
+                for (int j = 0; j < frames; j++) {
+                    if (frame[j] == -1) {
+                        emptyFrame = j;
+                        break;
+                    }
+                }
+
+                if (emptyFrame != -1) {
+                    System.out.println("Page " + pages[i] + " caused a page fault (MISS). Placing in empty frame " + emptyFrame + ".");
+                    frame[emptyFrame] = pages[i];
+                } else {
+                    int optimalIndex = -1, farthest = -1;
+
+                    for (int j = 0; j < frames; j++) {
+                        int k;
+                        for (k = i + 1; k < n; k++) {
+                            if (frame[j] == pages[k]) {
+                                if (k > farthest) {
+                                    farthest = k;
+                                    optimalIndex = j;
+                                }
+                                break;
+                            }
+                        }
+                        if (k == n) {
+                            optimalIndex = j;
+                            break;
+                        }
+                    }
+                    System.out.println("Page " + pages[i] + " caused a page fault (MISS). Replacing page " + frame[optimalIndex] + " in frame " + optimalIndex + ".");
+                    frame[optimalIndex] = pages[i];
+                }
+
+                pageFaults++;
+            }
+        }
+        return pageFaults;
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//FCFS disk scheduling
+
+import java.util.Scanner;
+
+public class FCFS_DiskScheduling {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter initial head position: ");
+        int initialHead = scanner.nextInt();
+
+        System.out.print("Enter number of disk requests: ");
+        int n = scanner.nextInt();
+
+        int[] requests = new int[n];
+        System.out.print("Enter disk requests: ");
+        for (int i = 0; i < n; i++) {
+            requests[i] = scanner.nextInt();
+        }
+
+        int totalSeekTime = 0;
+        int currentPosition = initialHead;
+
+        System.out.println("\nDisk Scheduling (FCFS)");
+        System.out.println("---------------------------------------------------");
+        System.out.printf("%-15s %-15s %-15s%n", "Current Position", "Next Request", "Seek Time");
+        System.out.println("---------------------------------------------------");
+
+        for (int i = 0; i < n; i++) {
+            int seekTime = Math.abs(currentPosition - requests[i]);
+            totalSeekTime += seekTime;
+
+            System.out.printf("%-15d %-15d %-15d%n", currentPosition, requests[i], seekTime);
+
+            currentPosition = requests[i];
+        }
+
+        System.out.println("---------------------------------------------------");
+        System.out.println("Total Seek Time: " + totalSeekTime);
+        scanner.close();
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//SSTF
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class SSTF_DiskScheduling {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter initial head position: ");
+        int initialHead = scanner.nextInt();
+
+        System.out.print("Enter number of disk requests: ");
+        int n = scanner.nextInt();
+
+        int[] requests = new int[n];
+        System.out.print("Enter disk requests: ");
+        for (int i = 0; i < n; i++) {
+            requests[i] = scanner.nextInt();
+        }
+
+        ArrayList<Integer> requestList = new ArrayList<>();
+        for (int request : requests) {
+            requestList.add(request);
+        }
+
+        int currentPosition = initialHead;
+        int totalSeekTime = 0;
+
+        System.out.println("\nDisk Scheduling (SSTF)");
+        System.out.println("---------------------------------------------------");
+        System.out.printf("%-15s %-15s %-15s%n", "Current Position", "Next Request", "Seek Time");
+        System.out.println("---------------------------------------------------");
+
+        while (!requestList.isEmpty()) {
+            int closestRequest = -1;
+            int closestDistance = Integer.MAX_VALUE;
+
+            for (int request : requestList) {
+                int distance = Math.abs(currentPosition - request);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestRequest = request;
+                }
+            }
+
+            int seekTime = Math.abs(currentPosition - closestRequest);
+            totalSeekTime += seekTime;
+
+            System.out.printf("%-15d %-15d %-15d%n", currentPosition, closestRequest, seekTime);
+
+            currentPosition = closestRequest;
+            requestList.remove((Integer) closestRequest);
+        }
+
+        System.out.println("---------------------------------------------------");
+        System.out.println("Total Seek Time: " + totalSeekTime);
+        scanner.close();
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//SCAN 
+
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class SCAN_DiskScheduling {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter initial head position: ");
+        int initialHead = scanner.nextInt();
+
+        System.out.print("Enter number of disk requests: ");
+        int n = scanner.nextInt();
+
+        int[] requests = new int[n];
+        System.out.print("Enter disk requests: ");
+        for (int i = 0; i < n; i++) {
+            requests[i] = scanner.nextInt();
+        }
+
+        System.out.print("Enter the disk size: ");
+        int diskSize = scanner.nextInt();
+
+        Arrays.sort(requests);
+
+        int currentPosition = initialHead;
+        int totalSeekTime = 0;
+        boolean directionUp = true;
+
+        System.out.println("\nDisk Scheduling (SCAN)");
+        System.out.println("---------------------------------------------------");
+        System.out.printf("%-15s %-15s %-15s%n", "Current Position", "Next Request", "Seek Time");
+        System.out.println("---------------------------------------------------");
+
+        for (int i = 0; i < n; i++) {
+            if (requests[i] >= currentPosition) {
+                int seekTime = Math.abs(currentPosition - requests[i]);
+                totalSeekTime += seekTime;
+                System.out.printf("%-15d %-15d %-15d%n", currentPosition, requests[i], seekTime);
+                currentPosition = requests[i];
+            }
+        }
+
+        if (currentPosition != diskSize - 1) {
+            int seekTime = Math.abs(currentPosition - (diskSize - 1));
+            totalSeekTime += seekTime;
+            currentPosition = diskSize - 1;
+        }
+
+        for (int i = n - 1; i >= 0; i--) {
+            if (requests[i] < initialHead) {
+                int seekTime = Math.abs(currentPosition - requests[i]);
+                totalSeekTime += seekTime;
+                System.out.printf("%-15d %-15d %-15d%n", currentPosition, requests[i], seekTime);
+                currentPosition = requests[i];
+            }
+        }
+
+        System.out.println("---------------------------------------------------");
+        System.out.println("Total Seek Time: " + totalSeekTime);
+        scanner.close();
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//CSCAN
+
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class CSCAN_DiskScheduling {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter initial head position: ");
+        int initialHead = scanner.nextInt();
+
+        System.out.print("Enter number of disk requests: ");
+        int n = scanner.nextInt();
+
+        int[] requests = new int[n];
+        System.out.print("Enter disk requests: ");
+        for (int i = 0; i < n; i++) {
+            requests[i] = scanner.nextInt();
+        }
+
+        System.out.print("Enter the disk size: ");
+        int diskSize = scanner.nextInt();
+
+        Arrays.sort(requests);
+        int currentPosition = initialHead;
+        int totalSeekTime = 0;
+
+        System.out.println("\nDisk Scheduling (C-SCAN)");
+        System.out.println("---------------------------------------------------");
+        System.out.printf("%-15s %-15s %-15s%n", "Current Position", "Next Request", "Seek Time");
+        System.out.println("---------------------------------------------------");
+
+        for (int i = 0; i < n; i++) {
+            if (requests[i] >= currentPosition) {
+                int seekTime = Math.abs(currentPosition - requests[i]);
+                totalSeekTime += seekTime;
+                System.out.printf("%-15d %-15d %-15d%n", currentPosition, requests[i], seekTime);
+                currentPosition = requests[i];
+            }
+        }
+
+        if (currentPosition != diskSize - 1) {
+            int seekTime = Math.abs(currentPosition - (diskSize - 1));
+            totalSeekTime += seekTime;
+            System.out.printf("%-15d %-15d %-15d%n", currentPosition, diskSize - 1, seekTime);
+            currentPosition = 0;
+            seekTime = diskSize - 1;
+            totalSeekTime += seekTime;
+            System.out.printf("%-15d %-15d %-15d%n", diskSize - 1, 0, seekTime);
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (requests[i] < initialHead) {
+                int seekTime = Math.abs(currentPosition - requests[i]);
+                totalSeekTime += seekTime;
+                System.out.printf("%-15d %-15d %-15d%n", currentPosition, requests[i], seekTime);
+                currentPosition = requests[i];
+            }
+        }
+
+        System.out.println("---------------------------------------------------");
+        System.out.println("Total Seek Time: " + totalSeekTime);
+        scanner.close();
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Zombie orphan:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+void createZombieProcess() {
+    pid_t pid = fork();
+    if (pid > 0) {
+        printf("Parent process (PID: %d) created a zombie process.\n", getpid());
+        sleep(5);
+        printf("Parent process is now calling wait().\n");
+        wait(NULL);
+    } else if (pid == 0) {
+        printf("Child process (PID: %d) is exiting to become a zombie.\n", getpid());
+        exit(0);
+    } else {
+        perror("Fork failed");
+    }
+}
+
+void createOrphanProcess() {
+    pid_t pid = fork();
+    if (pid > 0) {
+        printf("Parent process (PID: %d) will exit, making the child an orphan.\n", getpid());
+        sleep(2);
+    } else if (pid == 0) {
+        sleep(5);
+        printf("Child process (PID: %d) is now an orphan adopted by init.\n", getpid());
+    } else {
+        perror("Fork failed");
+    }
+}
+
+void calculateSum() {
+    // int arr[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    // int n = sizeof(arr) / sizeof(arr[0]);
+    int n;
+    printf("Enter the number of elements in the array: ");
+    scanf("%d", &n);
+
+    int arr[n];
+    int evenSum = 0, oddSum = 0;
+
+    printf("Enter the elements of the array:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    pid_t pid = fork();
+    if (pid > 0) {
+        wait(NULL);
+        for (int i = 0; i < n; i++) {
+            if (arr[i] % 2 == 0) {
+                evenSum += arr[i];
+            }
+        }
+        printf("Parent process (PID: %d) sum of even numbers: %d\n", getpid(), evenSum);
+    } else if (pid == 0) {
+        for (int i = 0; i < n; i++) {
+            if (arr[i] % 2 != 0) {
+                oddSum += arr[i];
+            }
+        }
+        printf("Child process (PID: %d) sum of odd numbers: %d\n", getpid(), oddSum);
+        exit(0);
+    } else {
+        perror("Fork failed");
+    }
+}
+
+int main() {
+    int choice;
+    do {
+        printf("\nMenu:\n");
+        printf("1. Create a Zombie Process\n");
+        printf("2. Create an Orphan Process\n");
+        printf("3. Calculate Sum of Even/Odd Numbers\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                createZombieProcess();
+                break;
+            case 2:
+                createOrphanProcess();
+                break;
+            case 3:
+                calculateSum();
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice, please try again.\n");
+        }
+    } while (choice != 4);
+
+    return 0;
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//File copy : java character by character
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class FileCopy {
+    public static void main(String[] args) {
+        String inputFileName = "./input.txt";
+        String outputFileName = "./output.txt";
+
+        try (FileReader fileReader = new FileReader(inputFileName);
+             FileWriter fileWriter = new FileWriter(outputFileName)) {
+            int character;
+            while ((character = fileReader.read()) != -1) {
+                fileWriter.write(character);
+            }
+            System.out.println("Contents copied character by character.");
+        } catch (IOException e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFileName));
+             FileWriter fileWriter = new FileWriter(outputFileName, true)) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                fileWriter.write(line + System.lineSeparator());
+            }
+            System.out.println("Contents copied line by line.");
+        } catch (IOException e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//ALP load
+
+//input: input.alp
+//MOVER A,3
+//        MOVER B,4
+//        ADD A,B
+//        ADD B,A
+//        END
+
+import java.io.*;
+
+public class ALPLoad {
+
+    public static void main(String[] args) {
+        String fileName = "input.alp";
+        int memorySize = 30;
+        int memoryWidth = 10;
+        String[][] memory = new String[memorySize][memoryWidth];
+
+        for (int i = 0; i < memorySize; i++) {
+            for (int j = 0; j < memoryWidth; j++) {
+                memory[i][j] = "[_]";
+            }
+        }
+
+        loadALPProgram(fileName, memory);
+
+        displayMemory(memory);
+    }
+
+    private static void loadALPProgram(String fileName, String[][] memory) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
+            String line;
+            int memoryIndex = 0;
+
+            while ((line = reader.readLine()) != null && memoryIndex < memory.length) {
+                line = line.trim();
+                if (!line.isEmpty()) {
+                    int charIndex = 0;
+                    for (char c : line.toCharArray()) {
+                        if (charIndex < memory[memoryIndex].length) {
+                            memory[memoryIndex][charIndex] = "[" + c + "]";
+                            charIndex++;
+                        }
+                    }
+                    while (charIndex < memory[memoryIndex].length) {
+                        memory[memoryIndex][charIndex] = "[_]";
+                        charIndex++;
+                    }
+
+                    memoryIndex++;
+                }
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            System.out.println("Error reading input file: " + e.getMessage());
+        }
+    }
+
+    private static void displayMemory(String[][] memory) {
+        System.out.println("Memory contents:");
+        for (int i = 0; i < memory.length; i++) {
+            StringBuilder row = new StringBuilder();
+            for (int j = 0; j < memory[i].length; j++) {
+                row.append(memory[i][j]).append(" ");
+            }
+            System.out.println(row.toString());
+        }
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Opcode error
+
+import java.util.*;
+
+public class OpcodeJob {
+    public static void main(String[] args) {
+        String str = "$AMJ000100030001GD10PD10HALT$DTA$END";
+        System.out.println("Job string: " + str);
+
+        String[] validOpcodes = {"GD", "PD", "LR", "SR", "CR", "BT", "HA"};
+
+        int startIdx = 16;
+
+        for (int i = startIdx; i < str.length()-8; i += 4) {
+            String opcodeChunk = str.substring(i, Math.min(i + 4, str.length()));
+
+            String opcode = opcodeChunk.substring(0, 2);
+
+            System.out.println("Checking opcode: " + opcode);
+
+            boolean isValid = false;
+            for (String validOpcode : validOpcodes) {
+                if(opcode.equals(validOpcode)) {
+                    isValid = true;
+                    break;
+                }
+            }
+
+            if (isValid) {
+                System.out.println(opcode + " is a valid opcode.");
+            } else {
+                System.out.println(opcode + " is an invalid opcode. Raising interrupt!");
+                interrupt();
+                break;
+            }
+        }
+    }
+
+    private static void interrupt() {
+        System.out.println("Interrupt raised due to invalid opcode!");
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Operand error 
+
+import java.util.*;
+
+public class OperandJob {
+    public static void main(String[] args) {
+        String str = "$AMJ000100030001GD10PD10HALT$DTA$END";
+        System.out.println("Job string: " + str);
+
+        String[] validOpcodes = {"GD", "PD", "LR", "SR", "CR", "BT", "HA"};
+        int startIdx = 16;
+
+        for (int i = startIdx; i < str.length() - 8; i += 4) {
+            String opcodeChunk = str.substring(i, Math.min(i + 4, str.length()));
+            String opcode = opcodeChunk.substring(0, 2);
+            String operand = opcodeChunk.substring(2, 4);
+
+            System.out.println("Checking opcode: " + opcode + " with operand: " + operand);
+
+            boolean isValid = false;
+            for (String validOpcode : validOpcodes) {
+                if (opcode.equals(validOpcode)) {
+                    isValid = true;
+                    break;
+                }
+            }
+
+            if (isValid) {
+                if (isOperandValid(operand)) {
+                    System.out.println(opcode + " " + operand + " is a valid opcode and operand.");
+                } else if(opcode.equals("HA") && !isOperandValid(operand)){
+                    System.out.println("HALT does not have an operand");
+                } else {
+                    System.out.println(opcode + " " + operand + " has an invalid operand. Raising interrupt!");
+                    interrupt("Invalid operand: Operand must be a 2-digit number!");
+                    break;
+                }
+            } else {
+                System.out.println(opcode + " is an invalid opcode. Raising interrupt!");
+                interrupt("Invalid opcode!");
+                break;
+            }
+        }
+    }
+
+    private static boolean isOperandValid(String operand) {
+        if (operand.length() == 2 && operand.matches("\\d{2}")) {
+            return true;
+        }
+
+        if (operand.matches("[a-zA-Z]+")) {
+            return false;
+        }
+
+        return false;
+    }
+
+    private static void interrupt(String errorMessage) {
+        System.out.println("Interrupt raised: " + errorMessage);
+        System.exit(1);
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
