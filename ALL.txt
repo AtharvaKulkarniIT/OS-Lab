@@ -1779,3 +1779,164 @@ public class SchedulingAlgorithms {
         sc.close();
     }
 }
+
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class DiskScheduling {
+
+    // SCAN Disk Scheduling Function
+    public static int scan(int[] requests, int head, int diskSize, boolean directionRight) {
+        Arrays.sort(requests);
+        int totalSeek = 0;
+        int currentPosition = head;
+
+        System.out.printf("%-20s%-20s\n", "Disk Head Movement", "Seek Time");
+
+        // Move in the initial direction (right if true, left if false)
+        if (directionRight) {
+            for (int request : requests) {
+                if (request >= head) {
+                    int seekTime = Math.abs(currentPosition - request);
+                    totalSeek += seekTime;
+                    System.out.printf("%-20s%-20d\n", currentPosition + " -> " + request, seekTime);
+                    currentPosition = request;
+                }
+            }
+
+            // Move to the end of the disk if not at the end
+            if (currentPosition != diskSize - 1) {
+                int seekTime = Math.abs(currentPosition - (diskSize - 1));
+                totalSeek += seekTime;
+                System.out.printf("%-20s%-20d\n", currentPosition + " -> " + (diskSize - 1), seekTime);
+                currentPosition = diskSize - 1;
+            }
+
+            // Move back in the reverse direction
+            for (int request : requests) {
+                if (request < head) {
+                    int seekTime = Math.abs(currentPosition - request);
+                    totalSeek += seekTime;
+                    System.out.printf("%-20s%-20d\n", currentPosition + " -> " + request, seekTime);
+                    currentPosition = request;
+                }
+            }
+
+        } else { // Moving initially left
+            for (int i = requests.length - 1; i >= 0; i--) {
+                if (requests[i] <= head) {
+                    int seekTime = Math.abs(currentPosition - requests[i]);
+                    totalSeek += seekTime;
+                    System.out.printf("%-20s%-20d\n", currentPosition + " -> " + requests[i], seekTime);
+                    currentPosition = requests[i];
+                }
+            }
+
+            // Move to the start of the disk if not at the beginning
+            if (currentPosition != 0) {
+                int seekTime = Math.abs(currentPosition - 0);
+                totalSeek += seekTime;
+                System.out.printf("%-20s%-20d\n", currentPosition + " -> 0", seekTime);
+                currentPosition = 0;
+            }
+
+            // Move back in the reverse direction
+            for (int request : requests) {
+                if (request > head) {
+                    int seekTime = Math.abs(currentPosition - request);
+                    totalSeek += seekTime;
+                    System.out.printf("%-20s%-20d\n", currentPosition + " -> " + request, seekTime);
+                    currentPosition = request;
+                }
+            }
+        }
+
+        return totalSeek;
+    }
+
+    // C-SCAN 
+    public static int cScan(int[] requests, int head, int diskSize) {
+        Arrays.sort(requests);
+        int totalSeek = 0;
+        int currentPosition = head;
+
+        System.out.printf("%-20s%-20s\n", "Disk Head Movement", "Seek Time");
+
+        // Move to right
+        for (int request : requests) {
+            if (request >= head) {
+                int seekTime = Math.abs(currentPosition - request);
+                totalSeek += seekTime;
+                System.out.printf("%-20s%-20d\n", currentPosition + " -> " + request, seekTime);
+                currentPosition = request;
+            }
+        }
+
+        // Move to end
+        if (currentPosition != diskSize - 1) {
+            int seekTime = Math.abs(currentPosition - (diskSize - 1));
+            totalSeek += seekTime;
+            System.out.printf("%-20s%-20d\n", currentPosition + " -> " + (diskSize - 1), seekTime);
+            currentPosition = diskSize - 1;
+        }
+
+        // Jump to beginning of the disk
+        int seekTime = Math.abs(currentPosition - 0);
+        totalSeek += seekTime;
+        System.out.printf("%-20s%-20d\n", currentPosition + " -> 0", seekTime);
+        currentPosition = 0;
+
+        // left side
+        for (int request : requests) {
+            if (request < head) {
+                seekTime = Math.abs(currentPosition - request);
+                totalSeek += seekTime;
+                System.out.printf("%-20s%-20d\n", currentPosition + " -> " + request, seekTime);
+                currentPosition = request;
+            }
+        }
+
+        return totalSeek;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter the initial head position: ");
+        int head = sc.nextInt();
+
+        System.out.print("Enter the disk size: ");
+        int diskSize = sc.nextInt();
+
+        System.out.print("Enter the number of requests: ");
+        int n = sc.nextInt();
+        int[] requests = new int[n];
+
+        System.out.println("Enter the requests:");
+        for (int i = 0; i < n; i++) {
+            requests[i] = sc.nextInt();
+        }
+
+        System.out.print("Enter initial direction (1 for right, 0 for left): ");
+        boolean directionRight = sc.nextInt() == 1;
+
+        System.out.println("\nAccepted Inputs:");
+        System.out.println("Initial Head Position: " + head);
+        System.out.println("Disk Size: " + diskSize);
+        System.out.println("Requests: " + Arrays.toString(requests));
+        System.out.println("Direction: " + (directionRight ? "Right" : "Left"));
+
+        // SCAN
+        System.out.println("\nSCAN Disk Scheduling:");
+        int totalSeekScan = scan(requests, head, diskSize, directionRight);
+        System.out.println("Total Seek Time for SCAN: " + totalSeekScan);
+
+        //  C-SCAN
+        System.out.println("\nC-SCAN Disk Scheduling:");
+        int totalSeekCScan = cScan(requests, head, diskSize);
+        System.out.println("Total Seek Time for C-SCAN: " + totalSeekCScan);
+
+        sc.close();
+    }
+}
+
