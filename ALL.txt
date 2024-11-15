@@ -2383,3 +2383,187 @@ int main() {
 
     return 0;
 }
+
+//CP Codes
+
+//ALP load
+
+//input: input.alp
+//MOVER A,3
+//        MOVER B,4
+//        ADD A,B
+//        ADD B,A
+//        END
+
+import java.io.*;
+
+public class ALPLoad {
+
+    public static void main(String[] args) {
+        String fileName = "input.alp";
+        int memorySize = 30;
+        int memoryWidth = 10;
+        String[][] memory = new String[memorySize][memoryWidth];
+
+        for (int i = 0; i < memorySize; i++) {
+            for (int j = 0; j < memoryWidth; j++) {
+                memory[i][j] = "[_]";
+            }
+        }
+
+        loadALPProgram(fileName, memory);
+
+        displayMemory(memory);
+    }
+
+    private static void loadALPProgram(String fileName, String[][] memory) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
+            String line;
+            int memoryIndex = 0;
+
+            while ((line = reader.readLine()) != null && memoryIndex < memory.length) {
+                line = line.trim();
+                if (!line.isEmpty()) {
+                    int charIndex = 0;
+                    for (char c : line.toCharArray()) {
+                        if (charIndex < memory[memoryIndex].length) {
+                            memory[memoryIndex][charIndex] = "[" + c + "]";
+                            charIndex++;
+                        }
+                    }
+                    while (charIndex < memory[memoryIndex].length) {
+                        memory[memoryIndex][charIndex] = "[_]";
+                        charIndex++;
+                    }
+
+                    memoryIndex++;
+                }
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            System.out.println("Error reading input file: " + e.getMessage());
+        }
+    }
+
+    private static void displayMemory(String[][] memory) {
+        System.out.println("Memory contents:");
+        for (int i = 0; i < memory.length; i++) {
+            StringBuilder row = new StringBuilder();
+            for (int j = 0; j < memory[i].length; j++) {
+                row.append(memory[i][j]).append(" ");
+            }
+            System.out.println(row.toString());
+        }
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Opcode error
+
+import java.util.*;
+
+public class OpcodeJob {
+    public static void main(String[] args) {
+        String str = "$AMJ000100030001GD10PD10HALT$DTA$END";
+        System.out.println("Job string: " + str);
+
+        String[] validOpcodes = {"GD", "PD", "LR", "SR", "CR", "BT", "HA"};
+
+        int startIdx = 16;
+
+        for (int i = startIdx; i < str.length()-8; i += 4) {
+            String opcodeChunk = str.substring(i, Math.min(i + 4, str.length()));
+
+            String opcode = opcodeChunk.substring(0, 2);
+
+            System.out.println("Checking opcode: " + opcode);
+
+            boolean isValid = false;
+            for (String validOpcode : validOpcodes) {
+                if(opcode.equals(validOpcode)) {
+                    isValid = true;
+                    break;
+                }
+            }
+
+            if (isValid) {
+                System.out.println(opcode + " is a valid opcode.");
+            } else {
+                System.out.println(opcode + " is an invalid opcode. Raising interrupt!");
+                interrupt();
+                break;
+            }
+        }
+    }
+
+    private static void interrupt() {
+        System.out.println("Interrupt raised due to invalid opcode!");
+    }
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Operand error 
+
+import java.util.*;
+
+public class OperandJob {
+    public static void main(String[] args) {
+        String str = "$AMJ000100030001GD10PD10HALT$DTA$END";
+        System.out.println("Job string: " + str);
+
+        String[] validOpcodes = {"GD", "PD", "LR", "SR", "CR", "BT", "HA"};
+        int startIdx = 16;
+
+        for (int i = startIdx; i < str.length() - 8; i += 4) {
+            String opcodeChunk = str.substring(i, Math.min(i + 4, str.length()));
+            String opcode = opcodeChunk.substring(0, 2);
+            String operand = opcodeChunk.substring(2, 4);
+
+            System.out.println("Checking opcode: " + opcode + " with operand: " + operand);
+
+            boolean isValid = false;
+            for (String validOpcode : validOpcodes) {
+                if (opcode.equals(validOpcode)) {
+                    isValid = true;
+                    break;
+                }
+            }
+
+            if (isValid) {
+                if (isOperandValid(operand)) {
+                    System.out.println(opcode + " " + operand + " is a valid opcode and operand.");
+                } else if(opcode.equals("HA") && !isOperandValid(operand)){
+                    System.out.println("HALT does not have an operand");
+                } else {
+                    System.out.println(opcode + " " + operand + " has an invalid operand. Raising interrupt!");
+                    interrupt("Invalid operand: Operand must be a 2-digit number!");
+                    break;
+                }
+            } else {
+                System.out.println(opcode + " is an invalid opcode. Raising interrupt!");
+                interrupt("Invalid opcode!");
+                break;
+            }
+        }
+    }
+
+    private static boolean isOperandValid(String operand) {
+        if (operand.length() == 2 && operand.matches("\\d{2}")) {
+            return true;
+        }
+
+        if (operand.matches("[a-zA-Z]+")) {
+            return false;
+        }
+
+        return false;
+    }
+
+    private static void interrupt(String errorMessage) {
+        System.out.println("Interrupt raised: " + errorMessage);
+        System.exit(1);
+    }
+}
+
